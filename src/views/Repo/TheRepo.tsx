@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Sparkles, Search, FolderOpen, Users, TrendingUp, Plus, MessageSquare, Trash2 } from 'lucide-react';
+import { Send, Sparkles, Search, FolderOpen, Users, TrendingUp, Plus, MessageSquare, Trash2, BookOpen } from 'lucide-react';
 import { useProjects } from '../../context/ProjectsContext';
+import { queryRAG, type RAGResponse, type Source, type ConversationMessage } from '../../services/rag';
 
 interface TheRepoProps {
   onNavigate: (view: string) => void;
@@ -12,6 +13,8 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  sources?: Source[];
+  model?: 'haiku' | 'sonnet' | 'opus';
 }
 
 interface ChatSession {
@@ -86,10 +89,10 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
     return newSession.id;
   };
 
-  const generateResponse = (userMessage: string): string => {
+  // Fallback for project list queries (doesn't need RAG)
+  const handleProjectQuery = (userMessage: string): string | null => {
     const lowerMessage = userMessage.toLowerCase();
 
-    // Search for specific projects
     if (lowerMessage.includes('progress') || lowerMessage.includes('active') || lowerMessage.includes('developmental')) {
       const activeProjects = projects.filter(p => p.phase === 'Developmental');
       if (activeProjects.length > 0) {
@@ -98,7 +101,7 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
       return 'No projects are currently in the developmental phase.';
     }
 
-    if (lowerMessage.includes('completed') || lowerMessage.includes('finished') || lowerMessage.includes('recent')) {
+    if (lowerMessage.includes('completed') || lowerMessage.includes('finished')) {
       const completedProjects = projects.filter(p => p.phase === 'Completed');
       if (completedProjects.length > 0) {
         return `There are ${completedProjects.length} completed projects:\n\n${completedProjects.map(p => `- **${p.title}** (${p.id})`).join('\n')}`;
@@ -115,31 +118,26 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
       return `Research is organized into ${categories.length} categories:\n\n${categoryCounts.join('\n')}`;
     }
 
-    if (lowerMessage.includes('partner') || lowerMessage.includes('collaborat') || lowerMessage.includes('external')) {
-      const partneredProjects = projects.filter(p => p.partners && p.partners.length > 0);
-      if (partneredProjects.length > 0) {
-        return `${partneredProjects.length} projects have external partners:\n\n${partneredProjects.map(p => `- **${p.title}**: ${p.partners?.join(', ')}`).join('\n')}`;
-      }
-      return 'No projects currently have external partners listed.';
-    }
-
-    if (lowerMessage.includes('psychology') || lowerMessage.includes('sustainability') || lowerMessage.includes('campus') || lowerMessage.includes('health') || lowerMessage.includes('fine arts') || lowerMessage.includes('immersive')) {
-      const category = projects.find(p => lowerMessage.includes(p.category.toLowerCase()))?.category;
-      if (category) {
-        const categoryProjects = projects.filter(p => p.category === category);
-        return `Found ${categoryProjects.length} projects in ${category}:\n\n${categoryProjects.map(p => `- **${p.title}** (${p.phase})\n  ${p.description.slice(0, 100)}...`).join('\n\n')}`;
-      }
-    }
-
     if (lowerMessage.includes('how many') || lowerMessage.includes('total')) {
       return `The repository contains **${projects.length} research projects** across ${[...new Set(projects.map(p => p.category))].length} categories.`;
     }
 
-    // Default response
-    return `I can help you explore the research repository. Try asking about:\n\n- Active or completed projects\n- Research categories\n- Projects with partners\n- Specific topics like psychology, sustainability, etc.\n\nWhat would you like to know?`;
+    // Return null to indicate RAG should be used
+    return null;
   };
 
-  const handleSend = (message?: string) => {
+  // Call RAG service for research queries with conversation history
+  const queryResearch = async (userMessage: string): Promise<RAGResponse> => {
+    // Convert chat messages to conversation history format
+    const history: ConversationMessage[] = messages.map(m => ({
+      role: m.role,
+      content: m.content,
+    }));
+
+    return queryRAG(userMessage, undefined, history);
+  };
+
+  const handleSend = async (message?: string) => {
     const text = message || inputValue;
     if (!text.trim()) return;
 
@@ -159,18 +157,44 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI response delay
-    setTimeout(() => {
-      const response = generateResponse(text);
-      const assistantMessage: ChatMessage = {
+    try {
+      // First check if it's a simple project list query
+      const simpleResponse = handleProjectQuery(text);
+
+      if (simpleResponse) {
+        // Use simple response for project list queries
+        const assistantMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: simpleResponse,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      } else {
+        // Use RAG for research queries
+        const ragResponse = await queryResearch(text);
+        const assistantMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: ragResponse.answer,
+          timestamp: new Date(),
+          sources: ragResponse.sources,
+          model: ragResponse.model_used
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      }
+    } catch (error) {
+      console.error('Error generating response:', error);
+      const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response,
+        content: 'Sorry, I encountered an error processing your request. Please try again.',
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 600);
+    }
   };
 
   const handleQuickPrompt = (prompt: string) => {
@@ -330,6 +354,38 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
                             {msg.content}
                           </p>
                         </div>
+                        {/* Sources */}
+                        {msg.sources && msg.sources.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-gray-800">
+                            <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-2">
+                              <BookOpen className="w-3 h-3" />
+                              <span>Sources</span>
+                              {msg.model && (
+                                <span className="ml-2 px-1.5 py-0.5 bg-gray-800 rounded text-[10px] text-gray-400">
+                                  {msg.model}
+                                </span>
+                              )}
+                            </div>
+                            {msg.sources.map((source, index) => (
+                              <div key={source.id} className="text-xs text-gray-500 mb-1">
+                                <span className="text-gray-400 font-medium">[{index + 1}]</span>{' '}
+                                <span className="text-gray-600">{source.project_id}</span>{' '}
+                                {source.url ? (
+                                  <a
+                                    href={source.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="hover:text-gray-300 transition-colors"
+                                  >
+                                    {source.author && `${source.author}. `}{source.title}
+                                  </a>
+                                ) : (
+                                  <span>{source.author && `${source.author}. `}{source.title}</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   ))}
