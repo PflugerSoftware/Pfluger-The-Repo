@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { ChevronLeft } from 'lucide-react';
 import type { ProjectConfig } from '../../components/blocks/types';
 import { BlockRenderer } from '../../components/blocks';

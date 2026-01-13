@@ -7,7 +7,9 @@
       "Bash(npx tsc:*)",
       "Bash(cd:*)",
       "Bash(tree:*)",
-      "Bash(/opt/homebrew/opt/libpq/bin/psql:*)"
+      "Bash(/opt/homebrew/opt/libpq/bin/psql:*)",
+      "Bash(grep:*)",
+      "Bash(curl:*)"
     ]
   }
 }

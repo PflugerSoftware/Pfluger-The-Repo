@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ImageGalleryData } from './types';
+import { getStorageUrl } from '../../config/storage';
 
 interface ImageGalleryBlockProps {
   data: ImageGalleryData;
@@ -47,7 +48,7 @@ export function ImageGalleryBlock({ data }: ImageGalleryBlockProps) {
           >
             <div className="relative overflow-hidden bg-black aspect-[4/3]">
               <img
-                src={image.src}
+                src={getStorageUrl(image.src)}
                 alt={image.alt}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
@@ -116,7 +117,7 @@ export function ImageGalleryBlock({ data }: ImageGalleryBlockProps) {
                 onClick={(e) => e.stopPropagation()}
               >
                 <img
-                  src={images[lightboxIndex].src}
+                  src={getStorageUrl(images[lightboxIndex].src)}
                   alt={images[lightboxIndex].alt}
                   className="max-w-full max-h-[85vh] object-contain"
                 />

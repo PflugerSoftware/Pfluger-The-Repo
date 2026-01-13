@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ProductOptionsData, ProductLine } from './types';
+import { getStorageUrl } from '../../config/storage';
 
 interface ProductOptionsBlockProps {
   data: ProductOptionsData;
@@ -38,7 +39,7 @@ function ProductLineCard({ line, index }: { line: ProductLine; index: number }) 
         {image && (
           <div className="mb-4 flex justify-center">
             <img
-              src={image}
+              src={getStorageUrl(image)}
               alt={name}
               className="w-28 h-28 object-cover rounded-2xl"
             />
