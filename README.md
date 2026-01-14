@@ -2,6 +2,57 @@
 
 **The Repo** is Pfluger Architects' Research & Benchmarking platform. It serves as both a public showcase of research work and an internal management tool for the R&B team.
 
+## Handoff Notes (Jan 14, 2026)
+
+**Latest Deploy:** https://pfluger-the-repo-67g.pages.dev
+
+**What we fixed today:**
+- Fixed `.claude/settings.local.json` merge conflict (had git conflict markers)
+- Added `.env` with Supabase credentials (gitignored)
+- Fixed RAG to return ALL sources, not just explicitly cited ones with `[n]` format
+
+**Next step: Add source_ids to X25-RB05 (Mass Timber)**
+
+The RAG chat shows sources for X25-RB01 (Sanctuary) but not X25-RB05 because the mass timber blocks don't have `source_ids` linked.
+
+**Database check:**
+```sql
+-- X25-RB01 has source_ids populated:
+SELECT id, source_ids FROM project_blocks WHERE project_id = 'X25-RB01' AND source_ids IS NOT NULL;
+-- Returns: insight-scale {1,2,3}, insight-color {4,5,6,7,8,9}, etc.
+
+-- X25-RB05 source_ids are all NULL:
+SELECT id, source_ids FROM project_blocks WHERE project_id = 'X25-RB05';
+-- All NULL
+
+-- But X25-RB05 has sources defined:
+SELECT data FROM project_blocks WHERE project_id = 'X25-RB05' AND block_type = 'sources';
+-- Returns: Timberlab (1), AISD (2), WoodWorks (3), FPInnovations (4)
+```
+
+**To fix - two options:**
+
+1. **Update TypeScript config** (`src/data/projects/X25RB05-masstimber/project/massTimberConfig.ts`):
+   - Add `sourceIds: [1, 2]` to `overview-text`, `main-findings`, etc.
+   - Re-sync to database
+
+2. **Update database directly:**
+   ```sql
+   UPDATE project_blocks SET source_ids = ARRAY[1, 2]
+   WHERE project_id = 'X25-RB05' AND id = 'overview-text';
+
+   UPDATE project_blocks SET source_ids = ARRAY[1]
+   WHERE project_id = 'X25-RB05' AND id IN ('main-findings', 'scenarios-intro', 'scenarios-chart', 'cost-builder');
+   ```
+
+**Logical source mappings for X25-RB05:**
+- `overview-text` → `{1, 2}` (Timberlab estimate, AISD requirements)
+- `main-findings` → `{1}` (Timberlab estimate)
+- `scenarios-*` → `{1}` (cost data from estimate)
+- `cost-builder`, `alternates-table` → `{1}` (alternates from estimate)
+
+---
+
 ## Overview
 
 The platform serves two audiences:
