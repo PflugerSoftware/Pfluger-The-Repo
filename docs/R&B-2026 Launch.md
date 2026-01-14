@@ -119,6 +119,7 @@ Done
 *- AW create CF account | software@pflugerarchitects.com veg72_pyvA3q6JU, deleter the developer@ account
 *- AW create SB account | software@pflugerarchitects.com -bQ98aK!kQ94pnT, deleted old org and requested deletion of account. project Pfluger_RB_Repo -c77.xSjc9v_RJc.
 - aw create resend account | software@pflugerarchitects.com X-khxUcD.fjcWV9
+new apple cloud account first: software last: pfluger, 01/01/1972 software@pflugerarchitects.com
 
 **Attendees:** CO, CM, LP, LF, CB, DC
 **Agenda:**

@@ -71,7 +71,7 @@ export function SurveyRatingBlock({ data }: SurveyRatingBlockProps) {
     visible: {
       opacity: 1,
       x: 0,
-      transition: { duration: 0.5, ease: [0, 0, 0.2, 1] as const },
+      transition: { duration: 0.5, ease: 'easeOut' as const },
     },
   };
 

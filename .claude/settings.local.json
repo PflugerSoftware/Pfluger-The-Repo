@@ -7,6 +7,7 @@
       "Bash(npx tsc:*)",
       "Bash(cd:*)",
       "Bash(tree:*)",
+<<<<<<< HEAD
       "Bash(winget search:*)",
       "Bash(winget install:*)",
       "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql.exe\" \"postgresql://postgres:1SRhjfokCsGJm77N@db.bydkzxqmgsvsnjtafphj.supabase.co:5432/postgres\" -c \"\\\\dt\")",
@@ -14,6 +15,12 @@
       "Bash(\"C:\\\\Program Files\\\\PostgreSQL\\\\17\\\\bin\\\\psql.exe\" \"postgresql://postgres.bydkzxqmgsvsnjtafphj:1SRhjfokCsGJm77N@aws-1-us-east-1.pooler.supabase.com:5432/postgres\" -c \"UPDATE project_blocks SET searchable_text = \\( SELECT string_agg\\(f->>''title'' || '': '' || COALESCE\\(f->>''detail'', f->>''value'', ''''\\), '' | ''\\) FROM jsonb_array_elements\\(data->''findings''\\) f \\), updated_at = NOW\\(\\) WHERE project_id = ''X24-RB01'' AND block_type = ''key-findings'' RETURNING id, LEFT\\(searchable_text, 100\\) as preview;\")",
       "Bash(\"C:\\\\Program Files\\\\PostgreSQL\\\\17\\\\bin\\\\psql.exe\" \"postgresql://postgres.bydkzxqmgsvsnjtafphj:1SRhjfokCsGJm77N@aws-1-us-east-1.pooler.supabase.com:5432/postgres\" -c \"UPDATE project_blocks SET searchable_text = \\( SELECT string_agg\\(COALESCE\\(s->>''title'', ''''\\) || '': '' || COALESCE\\(s->>''description'', ''''\\), '' | ''\\) FROM jsonb_array_elements\\(data->''steps''\\) s \\), updated_at = NOW\\(\\) WHERE project_id = ''X24-RB01'' AND block_type = ''workflow-steps'' RETURNING id, LEFT\\(searchable_text, 100\\) as preview;\")",
       "Bash(\"C:\\\\Program Files\\\\PostgreSQL\\\\17\\\\bin\\\\psql.exe\":*)"
+=======
+      "Bash(/opt/homebrew/opt/libpq/bin/psql:*)",
+      "Bash(grep:*)",
+      "Bash(curl:*)",
+      "Bash(wrangler pages deploy:*)"
+>>>>>>> e2f7f7ae2fe11421f805f71bbf70de033eb1d634
     ]
   }
 }

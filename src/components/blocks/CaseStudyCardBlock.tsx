@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Award, ArrowRight, Users, Building, MapPin, Calendar } from 'lucide-react';
 import type { CaseStudyCardData, CaseStudy } from './types';
+import { getStorageUrl } from '../../config/storage';
 
 interface CaseStudyCardBlockProps {
   data: CaseStudyCardData;
@@ -60,7 +61,7 @@ function CaseStudyModal({ study, onClose }: { study: CaseStudy; onClose: () => v
           <div className="relative h-64 bg-gradient-to-br from-white/5 to-white/10">
             {study.image && (
               <img
-                src={study.image}
+                src={getStorageUrl(study.image)}
                 alt={study.title}
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -266,7 +267,7 @@ export function CaseStudyCardBlock({ data }: CaseStudyCardBlockProps) {
               >
                 {study.image && (
                   <img
-                    src={study.image}
+                    src={getStorageUrl(study.image)}
                     alt={study.title}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
