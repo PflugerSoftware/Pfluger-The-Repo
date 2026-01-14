@@ -526,13 +526,8 @@ export async function queryRAG(
   // Step 4: Sonnet synthesizes answer
   const rawAnswer = await synthesizeAnswer(query, relevantBlocks, sources, conversationHistory);
 
-  // Step 5: Extract cited sources and renumber
+  // Step 5: Extract cited sources and renumber (if any citations in response)
   const citedNumbers = extractCitedNumbers(rawAnswer);
-
-  // Filter to only cited sources and create renumbering map
-  const citedSources = citedNumbers
-    .filter(n => n >= 1 && n <= sources.length)
-    .map(n => sources[n - 1]); // n is 1-indexed
 
   // Renumber citations in the answer text
   let answer = rawAnswer;
@@ -545,9 +540,11 @@ export async function queryRAG(
     return newNum ? `[${newNum}]` : match;
   });
 
+  // Return all available sources (not just explicitly cited ones)
+  // This ensures users always see what research informed the response
   return {
     answer,
-    sources: citedSources,
+    sources: sources.length > 0 ? sources : [],
     blocks_used: relevantBlocks.map(b => b.id),
     model_used: 'sonnet',
   };
