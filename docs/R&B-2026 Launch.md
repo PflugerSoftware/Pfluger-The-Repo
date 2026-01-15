@@ -297,7 +297,7 @@ CC: I also want more eyes on it providing refinements, including you and Terry M
 
  ---
 
-### 01/15 - Project Prism (X25-RB10)
+### Wednesday (1/15) - Project Prism (X25-RB10)
 **Messages**
 1/4 AW:
 Hello everyone, and Happy new year. Seeing some spots next week to set up a regroup on the cost estimator for 2026. Some items to revisit is our gameplan for LHISD, and the other ISDs it has been brought up to, and our relationship with Vermeulens/Alpha, subscription model, and the level of development we are comfortable with in 2026. Let me know yalls thoughts. Thanks!
@@ -312,14 +312,72 @@ Yes, would love to get something on the calendar ASAP with Terry and Tavo. A few
 - Development scope and comfort level
 Let me know what works for their schedules this week or early next.
 
-**Attendees:** Terry, Tavo, AW
+**Attendees:** TH (Terry), JS (Josh, joined mid-call driving), AW
 **Agenda:**
-- District outreach status (LHISD + new one Josh mentioned)
-- SaaS Partnership/IP with Vermeulens/Alpha
-- Development scope and comfort level for 2026
+1. District outreach status (LHISD + any new conversations)
+2. SaaS Partnership/IP with Vermeulens/Alpha
+3. Development scope and comfort level for 2026
 
-**Status:** Scheduling
-**Outcome:** _TBD_
+**Status:** Complete
+**Outcome:** See notes below
+
+---
+
+**Meeting Notes (1/15/26):**
+
+**Scope Clarified - Two Domains:**
+- **Bond Planning** = estimating new buildings, growth, big bonds (MVP focus)
+- **Facilities Management** = ongoing maintenance, deferred maintenance (Phase 2)
+- Decision: Building app first, facility maintenance on top. Not the other way around.
+
+**The Three Players:**
+| Partner | Role |
+|---------|------|
+| **Vermeulens** | Cost data licensing - new builds, additions, renovations, $/SF |
+| **Alpha** | Facilities assessment - what needs replacing, system-level (1:1 replacement) |
+| **CMTA** | MEP engineer, energy/performance analysis, performance contracting (future phase) |
+
+**How It Works:**
+- Alpha tells you *what* needs to be replaced
+- Vermeulens tells you *how much* it costs
+- CMTA would tell you *what to replace it with* for better performance (future)
+
+**Business Model:**
+- Bond tool locked unless client is working with Pfluger ("set the playpen")
+- Subscription for maintenance tool (reoccurring revenue)
+- Build features only when clients pay for them - don't over-engineer
+- Low barrier to entry: just give them a login, see who's serious
+
+**Vermeulens Licensing Discussion:**
+- Current relationship: Vermeulens charges 2% of project cost for estimates
+- Proposed trade: Pfluger gives project data ↔ Vermeulens gives cost data
+- Hope: No cash exchange - just data trade (they get value from our project data)
+- If Pfluger project uses licensed data → commit to use Vermeulens for estimate
+- They keep data current; we get access to their full dataset
+- Outside Texas: potential franchise opportunity (Vermeulens sells tool to other architects, royalty back to Pfluger)
+
+**Blair Concern:**
+- Is Blair speaking for Vermeulens or just himself?
+- TH: "He's always been the highest I've ever talked to"
+- Need to go higher before signing any agreements
+- Blair may be treating this as his career project vs official Vermeulens partnership
+
+**LP Not Needed Yet:**
+- TH: "No" to touching base with Lauren on this
+- Only bring LP in when attorney/contracts needed
+- Current investment is just AW's time - no budget component yet
+
+**Action Items:**
+- [ ] TH/Claire: Email Blair/Vermeulens to discuss licensing for 2026
+- [ ] AW + JS: Sit down to walk through cost estimation flow per Terry's explanation
+- [ ] Explore: What does licensing look like inside vs outside Texas?
+- [ ] Explore: NDA/disclosure with Vermeulens before going deeper
+
+**Districts Discussed:**
+- LHISD (current)
+- Burnet (example used)
+- Del Valle (potential - Dustin)
+- Dripping Springs (mentioned as data source)
  
  ---
  
