@@ -12,7 +12,8 @@
       "Bash(\"C:\\\\Program Files\\\\PostgreSQL\\\\17\\\\bin\\\\psql.exe\":*)",
       "Bash(grep:*)",
       "Bash(curl:*)",
-      "Bash(wrangler pages deploy:*)"
+      "Bash(wrangler pages deploy:*)",
+      "Bash(npm install)"
     ]
   }
 }

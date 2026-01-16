@@ -51,6 +51,21 @@ SELECT data FROM project_blocks WHERE project_id = 'X25-RB05' AND block_type = '
 - `scenarios-*` → `{1}` (cost data from estimate)
 - `cost-builder`, `alternates-table` → `{1}` (alternates from estimate)
 
+sources should appear under the responces with Sources - the ai model we used and then list them. check the sanctuary spaces, the code is correct on that one. 
+
+sources - sonnet
+
+1.
+2.
+3. 
+
+
+3. update map box account, need to back up old stuff and put onto new account. 
+
+
+
+4. OPEN ASSET
+
 ---
 
 ## Overview

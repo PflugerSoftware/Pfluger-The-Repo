@@ -130,39 +130,6 @@ Thanks for the time to finalize our line of business app tech stack and spend fo
 Agenda:
 Review existing licensing needs
 Discuss trade-offs and finalize software procurement/budget for 2026
-**Status:** Scheduled
-**Outcome:** _TBD_
-**Actionitems:**
-
-- AW: Prorate/cancel Safira license | need to hard conteact
-
-- AW: Cancel CH Claude Max 5x | awaiting support to contact back, calcled plan
-- AW: Cancel Claude Teams | awaiting support to contact back, calcled plan
-*- created new teams account for claude teams with software@pflugerarchitects.com, phone number is austin W, LP is card at $150 / mo for 5 seats.
-*- AW set up claude developer account | software@pflugerarchitects, no pass (email)
-*- Github account | created software@pflugerarchitects.com  kk(otS0>H-9r<kRHY|Cc, need to add to IT Glue
-*- Mapbox, | created account named pflugerarchtiects. email: software@pflugerarchitects.com, password is kk(otS0>H-9r<kRHY|Cc, need to add to IT Glue
-*- AW create CF account | software@pflugerarchitects.com veg72_pyvA3q6JU, deleter the developer@ account
-*- AW create SB account | software@pflugerarchitects.com -bQ98aK!kQ94pnT, deleted old org and requested deletion of account. project Pfluger_RB_Repo -c77.xSjc9v_RJc.
-*- AW: Reach out on Rhino pricing, confirm with Austin | no aditional rhino costs. Seats: 10 R8, 10 R7, 2 R6, aditional seat is $995. Seats are floating, 10 R8 max.
-*- AW: Get render machine, Apple Vision, 3D printer | Boxx render machine was ($9,000 not $5000)
-- aw create census account | 
-- aw create resend account | software@pflugerarchitects.com X-khxUcD.fjcWV9
-
-- Makerspace cost, ($95/mo consider 4mo a year / person), aditional one time training: $70 base, $135 laser cutting, $250 CNC. 
-
-- AW: Send glass and plexi pricing to TS, CO
-- AW: Send Makerspace (CP) membership + training costs to LP, CO
-
-- AW: Confirm IT Glue setup with Craig and all new log all users/passwords accounts created. 
-- AW: Set up monthly 30-min tech budget check-in
-
-- AW: Track all hours to C&P (keep separate log if reallocation needed)
-
-- AW download to LP | recipts, 9k computer, Rhino isnt Lic, $1k a seat.
-
-
-
 
  
 ### Thursday (1/9) 11am-noon — R&B Blocks 3, 4 + Prime 1, 5
@@ -217,8 +184,8 @@ After midwinter everyone will be in person. There will be a section that is a Wh
 With Chad M, there is a new BIM manager coming on board. 
 
 **Action items per CO (1/8):**
-- [ ] Tony - Get forum date and get R&B on the agenda
-- [ ] LP, CB (Craig) - Get software/accounts set up
+- [x ] Tony - Get forum date and get R&B on the agenda (it will be mid feb)
+- [ x] LP, CB (Craig) - Get software/accounts set up
 - [x] LF (Lisa) - Coordinate on VP hours/coding (1/8 - sent project breakdowns, she emailed Matt)
 - [x] Craig/Austin - Email about software, CC Lauren and CO (1/8 - sent to Craig, checking with Austin 1/9)
 - [ ] Logan - Launch animation/marketing hype
@@ -226,8 +193,8 @@ With Chad M, there is a new BIM manager coming on board.
 
 
 **VP Codes** (10 min)
-- Need codes created + communication chain activated
-- Who tells People Leaders, PMs, PAs it's legit?
+- Need codes created + communication chain activated, lisa had Matt make them, AW not cc'd'
+- Who tells People Leaders, PMs, PAs it's legit? the directors
 
 **Status:** Scheduled
 **Outcome:** _TBD_
@@ -317,11 +284,6 @@ Let me know what works for their schedules this week or early next.
 1. District outreach status (LHISD + any new conversations)
 2. SaaS Partnership/IP with Vermeulens/Alpha
 3. Development scope and comfort level for 2026
-
-**Status:** Complete
-**Outcome:** See notes below
-
----
 
 **Meeting Notes (1/15/26):**
 
@@ -610,7 +572,7 @@ Restore research OT eligibility. Use Ezra adoption as the pilot program.
 
 **Decision Owner:** CO, CM, LP (board approval for new vendors/costs)
 **Decision:** Approve software stack, where data lives, and associated costs
-Budget will be approved by EOM
+Budget will be approved by EOM Jan
 
 
 ### Database Platform Options
@@ -713,7 +675,7 @@ Research is completed but sits unpublished. Marketing integration unclear. No cl
 
 ## 4. Internal Launch (CO, CC, CB)
 
-**Decision Owner:** CO, CB
+**Decision Owner:** The directors.
 **Decision:** Approve internal dashboard for research team
 
 ### What Needs Review
@@ -871,31 +833,3 @@ Public Launch (#3)      Internal Launch (#4)
 **Full launch:** All 5 decisions
 
 ---
-
-## Executive Summary: Action Items by Decision
-
-1. **Research Hours Policy** — ~~Reverse "research on the clock" policy, restore OT eligibility~~ **DECIDED 1/8: ON THE CLOCK, NO OT**
-   - CO (Chief Design Officer)
-   - LP (COO / co-CEO)
-   - LF (Finance Director)
-   - **Outcome:** CO chose $255k revenue loss over $50k overhead. Researchers must convince PM → Principal → Directors. No direct authority to allocate hours.
-
-2. **Software & Infrastructure** — Approve database platform, APIs, and associated costs
-   - CO (Chief Design Officer) — direction
-   - CM (Design Tech Director) — technical
-   - LP (COO / co-CEO) — budget/board
-
-3. **Public Launch** — Approve content, branding, and marketing pipeline
-   - CO (Chief Design Officer)
-   - CC (Chief Growth Officer)
-
-4. **Internal Launch** — Approve dashboard functionality and TheRepo AI assistant
-   - CO (Chief Design Officer)
-   - CC (Chief Growth Officer)
-   - CB (CIO/CTO)
-
-5. **Vantage Point + Staff Assignment** — Create VP codes AND establish communication chain (Leadership → People Leaders → PMs → Staff)
-   - LP (COO / co-CEO) — code approval
-   - LF (Finance Director) — code approval
-   - CO (Chief Design Officer) — direction
-   - JS (Educational Planning Director) — people leader communication
