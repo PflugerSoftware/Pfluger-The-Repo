@@ -2,16 +2,60 @@
 
 **Repository** is Pfluger Architects' Research & Benchmarking platform. It serves as both a public showcase of research work and an internal management tool for the R&B team.
 
-## Handoff Notes (Jan 16, 2026)
+## Handoff Notes (Jan 19, 2026)
 
 **Latest Deploy:** https://pfluger-the-repo-67g.pages.dev
 
-**What we fixed today:**
-- RAG section expansion: sections now act as entry points to their child content blocks
+**What we built today:**
+
+### Pitch System Overhaul
+- **AI Pitch Assistant (Ezra)** - Conversational agent that helps users develop research pitches
+  - Guides users from idea → scope → methodology → complete pitch
+  - References existing research projects to build on prior work or find gaps
+  - Uses `[PITCH_UPDATE: key="value"]` tags to lock in decisions and update UI
+  - Progress sidebar shows pitch development steps in real-time
+
+- **Pitch Review Dashboard** - Full reviewer interface for managing pitches
+  - Left panel: Pitch list with status indicators
+  - Right panel: Editable pitch details + comment thread
+  - Combined scope + methodology dropdown (linked together)
+  - Auto-calculated timeline based on 4 hours/week
+  - Status controls: Pending → Revise → Green Lit
+  - Inline commenting system
+
+- **Research Methods (Scope + Methodology linked):**
+  | Scope | Methodology | Hours | Timeline |
+  |-------|-------------|-------|----------|
+  | Simple | Infographic Creation | 20-60 | 5-15 weeks |
+  | Simple | Expert Interview | 20-60 | 5-15 weeks |
+  | Simple | Literature Review | 20-60 | 5-15 weeks |
+  | Medium | Survey/Post-Occupancy | 60-120 | 15-30 weeks |
+  | Medium | Annotated Bibliography | 60-120 | 15-30 weeks |
+  | Complex | Case Study Analysis | 120-200 | 30-50 weeks |
+  | Complex | Experimental Design | 120-200 | 30-50 weeks |
+  | Complex | Long-form Whitepaper | 120-200 | 30-50 weeks |
+
+### Authentication & Chat
+- **Username-based login** - Changed from email to username (`software` / `123456Softwares!`)
+- **Chat history persistence** - Conversations saved to Supabase `chat_sessions` table per user
+
+### Files Changed
+- `src/views/Pitch/PitchSubmission.tsx` - Complete rewrite with review dashboard
+- `src/components/Pitch/PitchChatPanel.tsx` - Wired to pitch agent with UI updates
+- `src/services/pitchAgent.ts` - New AI agent service for pitch development
+- `src/services/chatHistory.ts` - New service for chat persistence
+- `src/components/System/AuthContext.tsx` - Username-based auth
+- `src/views/Login.tsx` - New login view
+
+---
+
+## Previous Notes (Jan 16, 2026)
+
+**RAG improvements:**
+- Section expansion: sections now act as entry points to their child content blocks
 - Increased search limits: 25 blocks (was 10), 8 terms (was 5), 10 per term (was 5)
 - Citations now use actual source IDs from project (e.g., `[12]` not renumbered to `[1]`)
 - Only cited sources are returned (not all sources from blocks)
-- Populated source_ids for ALL projects (was only X25-RB01)
 
 **Source coverage (content blocks only):**
 | Project | Coverage |
@@ -24,18 +68,6 @@
 | X25-RB06 | 88% |
 | X25-RB08 | 100% |
 | X25-RB13 | 95% |
-
-**How RAG works now:**
-1. Keyword search finds up to 25 blocks
-2. Haiku picks relevant blocks (may include section headers)
-3. Section expansion: if section picked, pull in all child blocks
-4. Sonnet reads content, cites using actual source IDs
-5. Only cited sources returned to UI
-
-**Source display in chat:**
-- Book icon + "Sources" label + model badge (haiku/sonnet/opus)
-- Source numbers match the project page (e.g., `[12] X24-RB01 EyeClick...`)
-- Links clickable if URL exists
 
 ---
 
@@ -377,11 +409,11 @@ npm run build && wrangler pages deploy dist --project-name=pfluger-the-repo
 
 ## Authentication
 
-For internal team members, click the login icon in the top navigation:
-- Email: `apps@pflugerarchitects.com`
-- Password: `123456`
+For internal team members, navigate to the Login page:
+- Username: `software`
+- Password: `123456Softwares!`
 
-*Note: Hardcoded for development. Production will use proper authentication.*
+*Note: Hardcoded for development. Production will use Pfluger SSO (Microsoft Entra ID).*
 
 ## Project Structure
 
@@ -417,6 +449,8 @@ src/
 │   └── storage.ts                  # Supabase Storage URL helper
 ├── services/
 │   ├── rag.ts                      # RAG system (search, intent, synthesis)
+│   ├── pitchAgent.ts               # AI pitch assistant (Ezra)
+│   ├── chatHistory.ts              # Chat session persistence
 │   └── projects.ts                 # Project config fetcher (database)
 ├── context/
 │   └── ProjectsContext.tsx         # Global project state
@@ -588,7 +622,7 @@ Each category has a dedicated color:
 - [ ] **Remaining Frontend-Database Integration**
   - Connect pitch submission to `pitches` table
   - Connect collaboration form to `collaboration_requests` table
-  - Wire up chat persistence to `chat_sessions`/`chat_messages`
+  - [x] Chat persistence wired to `chat_sessions` table (per username)
 
 - [ ] **Form Backend & Notifications**
   - Collaborate form: Connect to Supabase + Resend for email notifications
@@ -637,10 +671,13 @@ Each category has a dedicated color:
   - Burndown charts and capacity planning
 
 - [ ] **Pitch System Enhancements**
-  - Replace hardcoded GreenLit topics with D1 data
-  - Replace MY_PITCHES mock data (lines 93-123)
-  - Pitch review workflow for admins
-  - Status updates and notifications
+  - [x] AI pitch assistant (Ezra) for guided pitch development
+  - [x] Pitch review dashboard with editable fields
+  - [x] Combined scope + methodology with auto-calculated timeline
+  - [ ] Replace hardcoded GreenLit topics with database
+  - [ ] Replace DEFAULT_PITCHES mock data with database
+  - [ ] Connect pitch submissions to Supabase `pitches` table
+  - [ ] Email notifications for status changes
 
 - [ ] **Analytics Dashboard**
   - Real metrics instead of placeholder stats
@@ -725,12 +762,11 @@ Database hosted on Supabase (PostgreSQL). Connection via Session Pooler for IPv4
 
 | File | Issue | Line(s) |
 |------|-------|---------|
-| `AuthContext.tsx` | Hardcoded credentials | 17-19, 40 |
-| `TopNavbar.tsx` | Auto-login hardcoded | 148 |
+| `AuthContext.tsx` | Hardcoded credentials (username/password) | ~17-19, 40 |
 | `Collaborate.tsx` | Simulated form submission | 16-31 |
-| `PitchSubmission.tsx` | Console.log + alert() | 215-235 |
-| `PitchSubmission.tsx` | Hardcoded GreenLit topics | 49-90 |
-| `PitchSubmission.tsx` | Mock MY_PITCHES data | 93-123 |
+| `PitchSubmission.tsx` | Hardcoded GreenLit topics | 79-117 |
+| `PitchSubmission.tsx` | Mock DEFAULT_PITCHES data | 120-172 |
+| `PitchSubmission.tsx` | "submittedBy" hardcoded to "You" | 297 |
 | `Schedule.tsx` | Mock hours data | 70-84 |
 | `loadProjects.ts` | Unsplash placeholders | 60-61, 81-91 |
 | `ImageCarousel.tsx` | Unsplash hero images | 6, 12, 18, 24 |
