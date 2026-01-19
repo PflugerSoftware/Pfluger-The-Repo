@@ -1,7 +1,7 @@
 # Ezra Rollout: Decisions Needed
 
 **Target:** End of January 2026
-**Status:** Ezra live at repository.pflugerarchitects.com. Blocked by Directors until feedback from Directors Forum (mid-Feb).
+**Status:** Built and ready. Blocked on approvals.
 
 This document lists decisions that need to be made by stakeholders to move forward. Each item includes context, options, and consequences of delay.
 
@@ -22,6 +22,7 @@ This document lists decisions that need to be made by stakeholders to move forwa
 | CM | Chad Martin | Architect Director |
 | TS | Tony Schmitz | Principal, Process Performance Director |
 | JS | Josh Sawyer | Principal, Educational Planning Director |
+| TP | Tony Plascencia | Principal, Design Director | 
 
 | AW | Alex Wickes | Associate Design Performacne Leader | 
 | LS | Logan Steitle| Associalte Visualization + Immersive Designer|
@@ -44,12 +45,9 @@ This document lists decisions that need to be made by stakeholders to move forwa
 - Give Vermeulens access to log in
 
 ### Ezra
-**Live at:** https://repository.pflugerarchitects.com (Cloudflare Pages)
 - Table schema for pitch
 - My Research page
-- ~~AI RAG~~ ✅ Done (1/16) - Haiku relevance + Sonnet synthesis + section expansion
-- ~~Supabase frontend integration~~ ✅ Done - @supabase/supabase-js, projects from DB
-- ~~Cloudflare deployment + DNS~~ ✅ Done - repository.pflugerarchitects.com
+- AI RAG
 - Check block system and research .ts for accuracy
 - SSO sign in
 
@@ -61,7 +59,8 @@ This document lists decisions that need to be made by stakeholders to move forwa
 
 ## Meetings
 
-### Wednesday (1/8) 1pm-2pm — R&B Block 2: Software & Infrastructure
+### 1/8 1pm-2pm — R&B Block 2: Software & Infrastructure
+**Attendees:** CO, CM, LP, LF, CB, DC
 **Messages**
 1/7 AW to Craig/Austin:
 Hey Craig/Austin, just following up on our meeting and seeing what your availability is Friday afternoon to tackle the username/accounts for the following. Below are the known accounts. I'm not sure if any of these are being switched—if so, the goal would be to cancel/change user/set them up and running. If they can be skipped, great! I have placed "Card" next to the ones that will either need a card on file if the free tier is crossed, or if it is a paid service. With the budget not being passed until end of January, let me know if the Card ones aren't able to be done and we can tackle the non-Card ones first. The main ones holding production are Azure SSO, Bluehost, Cloudflare, Supabase, Claude GUI/API, VP API, and OA API. All the others "work."
@@ -71,7 +70,16 @@ Top Priority: Bluehost (HB@gmail, domain@pfluger), Cloudflare (TBD) Card?, Supab
 Other Vis Setup: Magnific GUI (apps@pfluger) Card, Midjourney GUI (TBD) Card, Google Gemini GUI (TBD) Card, CapCut Pro (TBD) Card, Digital Model Assets (TBD), Apple Developer (apps@pfluger) Card, Figma (LS@pfluger) Card, Unreal Engine (team@pfluger) Free, Twinmotion (team@pfluger) Free, Magnific API (TBD) Card, Gemini API (TBD) Card
 
 
-**Meeting Notes (LP Sidebar):**
+**Agenda:**
+By LP
+12/17 Update: Expanding this discussion to include Chad Martin, as Architect Director, I want to ensure we've got his input as well. I will share the full list of software and license quantity for your review in advance.
+
+Thanks for the time to finalize our line of business app tech stack and spend for 2026. 
+Agenda:
+Review existing licensing needs
+Discuss trade-offs and finalize software procurement/budget for 2026
+
+### Meeting Notes (LP Sidebar): ###
 
 **Software & Licensing**
 - Safira: Prorate and cancel license
@@ -113,30 +121,19 @@ Done
 - AW: Send Makerspace (CP) membership + training costs to LP, CO
 - AW: Set up monthly 30-min tech budget check-in
 - AW download to LP | recipts, 9k computer, Rhino isnt Lic, $1k a seat.
-*- AW: Reach out on Rhino pricing, confirm with Austin | no aditional rhino costs. Seats: 10 R8, 10 R7, 2 R6, aditional seat is $995. Seats are floating, 10 R8 max.
-*- AW: Get render machine, Apple Vision, 3D printer | Boxx render machine was ($9,000 not $5000)
-*- created new teams account for claude teams with software@pflugerarchitects.com, phone number is austin W, LP is card at $150 / mo for 5 seats.
-*- AW set up claude developer account | software@pflugerarchitects, no pass (email)
-*- Github account | created software@pflugerarchitects.com  kk(otS0>H-9r<kRHY|Cc, need to add to IT Glue
-*- Mapbox, | created account named pflugerarchtiects. email: software@pflugerarchitects.com, password is kk(otS0>H-9r<kRHY|Cc, need to add to IT Glue
-*- AW create CF account | software@pflugerarchitects.com veg72_pyvA3q6JU, deleter the developer@ account
-*- AW create SB account | software@pflugerarchitects.com -bQ98aK!kQ94pnT, deleted old org and requested deletion of account. project Pfluger_RB_Repo -c77.xSjc9v_RJc.
+- AW: Reach out on Rhino pricing, confirm with Austin | no aditional rhino costs. Seats: 10 R8, 10 R7, 2 R6, aditional seat is $995. Seats are floating, 10 R8 max.
+- AW: Get render machine, Apple Vision, 3D printer | Boxx render machine was ($9,000 not $5000)
+- created new teams account for claude teams with software@pflugerarchitects.com, phone number is austin W, LP is card at $150 / mo for 5 seats.
+- AW set up claude developer account | software@pflugerarchitects, no pass (email)
+- Github account | created software@pflugerarchitects.com  kk(otS0>H-9r<kRHY|Cc, need to add to IT Glue
+- Mapbox, | created account named pflugerarchtiects. email: software@pflugerarchitects.com, password is kk(otS0>H-9r<kRHY|Cc, need to add to IT Glue
+- AW create CF account | software@pflugerarchitects.com veg72_pyvA3q6JU, deleter the developer@ account*- AW create SB account | software@pflugerarchitects.com -bQ98aK!kQ94pnT, deleted old org and requested deletion of account. project Pfluger_RB_Repo -c77.xSjc9v_RJc.
 - aw create resend account | software@pflugerarchitects.com X-khxUcD.fjcWV9
-new apple cloud account first: software last: pfluger, 01/01/1972 software@pflugerarchitects.com
-open asset is $4500/TB, about $4k per TB. 
+- new apple cloud account first: software last: pfluger, 01/01/1972 software@pflugerarchitects.com
 
-**Attendees:** CO, CM, LP, LF, CB, DC
-**Agenda:**
-By LP
-12/17 Update: Expanding this discussion to include Chad Martin, as Architect Director, I want to ensure we've got his input as well. I will share the full list of software and license quantity for your review in advance.
-
-Thanks for the time to finalize our line of business app tech stack and spend for 2026. 
-Agenda:
-Review existing licensing needs
-Discuss trade-offs and finalize software procurement/budget for 2026
 
  
-### Thursday (1/9) 11am-noon — R&B Blocks 3, 4 + Prime 1, 5
+### 1/9 11am-noon — R&B Blocks 3, 4 + Prime 1, 5
 **Messages**
 1/8 AW → LF:
 Provided project number breakdowns for R&B. LF said she emailed Matt (AW not CC'd).
@@ -174,7 +171,7 @@ secondary is expertice
  - we will still go with the VP project numbers. Lisa will have all the VP, Get with Lisa with VP to go over hours. 
  get with lisa, walk through what we did for 2025, show the work flow, starting at 2000
 
- **Budgets**
+**Budgets**
  wont have $$ hours, budgets and expenses, we will make a bucket for RB. CO will regroup with Terry on the 2k hours.
 
 Tony is now the direct or design, will be learing the design shareouts.
@@ -187,25 +184,21 @@ After midwinter everyone will be in person. There will be a section that is a Wh
 
 With Chad M, there is a new BIM manager coming on board. 
 
+**VP Codes** (10 min)
+- Need codes created + communication chain activated
+- Who tells People Leaders, PMs, PAs it's legit?
+
 **Action items per CO (1/8):**
-- [x ] Tony - Get forum date and get R&B on the agenda (it will be mid feb)
-- [ x] LP, CB (Craig) - Get software/accounts set up
+- [*] Tony - Get forum date and get R&B on the agenda
+- [*] LP, CB (Craig) - Get software/accounts set up
 - [x] LF (Lisa) - Coordinate on VP hours/coding (1/8 - sent project breakdowns, she emailed Matt)
 - [x] Craig/Austin - Email about software, CC Lauren and CO (1/8 - sent to Craig, checking with Austin 1/9)
 - [ ] Logan - Launch animation/marketing hype
 - [x] Pick launch date (avoid TASA Midwinter)
 
-
-**VP Codes** (10 min)
-- Need codes created + communication chain activated, lisa had Matt make them, AW not cc'd'
-- Who tells People Leaders, PMs, PAs it's legit? the directors
-
-**Status:** Scheduled
-**Outcome:** _TBD_
-
  ---
 
-### Thursday (1/9) 3pm-4pm - Vision: BD+I Dashboard
+### 1/9 3pm-4pm - Vision: BD+I Dashboard
 **Messages**
 1/4
 Happy New year everyone, Cody Cunningham seeing a spot on the Calander next week, 1/13 3-4pm. It would be awesome to get this thing online and out to the teams to prep for Tasa Mid Winter as the info in it, is pretty useful. 
@@ -215,17 +208,14 @@ Cody Cunningham added David Young to the chat.
 3-4 pm on the 13th is open but that is before their meeting with McAllen ISD at 4-5 pm, and the bond presentation to the board that evening at 5:30 pm. There would likely need to be an awareness to finish before 4 pm if possible.
 
 CC: I have a window on Thursday if you're available to visit. 
- 
 DY: I can’t see the initial part of this conversation. What is the conversation we are trying to arrange?
- 
-Cody Cunningham changed the group name to Pfluger Vision (BD Tool).
-
+Cody Cunningham changed the group name to Pfluger Vision (BD Tool)
 CC: Sorry David, I meant to include the previous thread.  This is our thread with Alex on the BD Dashboard Tool.  Just including you for future conversations as we plan the rollout.  I don't think it's quite ready to roll out (I still want to add the bond data from schoolbondfinder).  
- 
 CC: I also want more eyes on it providing refinements, including you and Terry M., before we roll it out to MPs and PMs. 
 
-**Attendees:** CC, DY, CO
-**Agenda:**
+CW had TM send AW invite to school bond finder
+
+**Agenda**
 
 **Data currently in Vision:**
 - Districts: name, tier, tax rate, valuation, office controller, revenue totals
@@ -262,13 +252,27 @@ CC: I also want more eyes on it providing refinements, including you and Terry M
 - Delivery method: email, demo, training?
 - TASA Mid Winter prep timeline
 
-**Status:** Scheduled
-**AW Message (1/6):** Awesome all. Made it for Thurs 3-4. I have added an agenda to keep up on track. Please review and let me know if anything needs a massage. Thanks!
-**Outcome:** _TBD_
+
+### 01/15 - Meeting with school bond finder
+
+Alex.wickes@pflguerarchitects.com should have been set up. Password 43Bfjv-ad3.EQrP
+Are notifications for all of them or just the ones that updated
+CC not attend. CW, SW, TM attend. Amy Berd, director of client retention
+Api access, documentation, Costs, Limits
+Frequency  of data updates? Is every district updated every month?
+Data ethics, how they are getting the data, all public, private? Its all public data. They are using AI. 
+They harvest meeting minutes 
+A team is updating the information on the site, all sites or just us. Are others getting data faster?
+Whats the research team size?
+How do they get the school and district contacts? From the website
+Integration fee of $2500 to get into salsforce or salsforce or CRM, API not sure, no documentation.  No additional call fee. Dustin and Ben, and Chuck. 
+We are paying the whole country. To Texas the cost would drop down to regional price. 
+Updated 24-48hours AFTER a bond pass or fails, no updated during voting
+They follow 4 different types of bonds. 
 
  ---
 
-### Wednesday (1/15) - Project Prism (X25-RB10)
+### 01/15 - Project Prism (X25-RB10)
 **Messages**
 1/4 AW:
 Hello everyone, and Happy new year. Seeing some spots next week to set up a regroup on the cost estimator for 2026. Some items to revisit is our gameplan for LHISD, and the other ISDs it has been brought up to, and our relationship with Vermeulens/Alpha, subscription model, and the level of development we are comfortable with in 2026. Let me know yalls thoughts. Thanks!
@@ -283,92 +287,48 @@ Yes, would love to get something on the calendar ASAP with Terry and Tavo. A few
 - Development scope and comfort level
 Let me know what works for their schedules this week or early next.
 
-**Attendees:** TH (Terry), JS (Josh, joined mid-call driving), AW
+**Attendees:** Terry, Tavo, AW, JS
 **Agenda:**
-1. District outreach status (LHISD + any new conversations)
-2. SaaS Partnership/IP with Vermeulens/Alpha
-3. Development scope and comfort level for 2026
+- District outreach status (LHISD + new one Josh mentioned)
+- SaaS Partnership/IP with Vermeulens/Alpha
+- Development scope and comfort level for 2026
 
-**Meeting Notes (1/15/26):**
+**Outcome:** _TBD_
+- what are the districts that have been pitched this and in what scope
+- SaaS pricing / business model 
+- IP ownership structure Contract template / who sells
+- 2026 dev budget and scope threshhold
 
-**Scope Clarified - Two Domains:**
-- **Bond Planning** = estimating new buildings, growth, big bonds (MVP focus)
-- **Facilities Management** = ongoing maintenance, deferred maintenance (Phase 2)
-- Decision: Building app first, facility maintenance on top. Not the other way around.
 
-**The Three Players:**
-| Partner | Role |
-|---------|------|
-| **Vermeulens** | Cost data licensing - new builds, additions, renovations, $/SF |
-| **Alpha** | Facilities assessment - what needs replacing, system-level (1:1 replacement) |
-| **CMTA** | MEP engineer, energy/performance analysis, performance contracting (future phase) |
+ Questions to answer:
+- Who have we been talking to about this? (Districts, Vermeulens, others?)
+- What's been promised or discussed?
+- What's the relationship with Vermeulens - partner, vendor, co-owner?
+- What districts are we targeting beyond LHISD?
+- How much development do you want in 2026?
 
-**How It Works:**
-- Alpha tells you *what* needs to be replaced
-- Vermeulens tells you *how much* it costs
-- CMTA would tell you *what to replace it with* for better performance (future)
+---
 
-**Business Model:**
-- Bond tool locked unless client is working with Pfluger ("set the playpen")
-- Subscription for maintenance tool (reoccurring revenue)
-- Build features only when clients pay for them - don't over-engineer
-- Low barrier to entry: just give them a login, see who's serious
+**Meeting Notes:**
+To tee up for LP after:
+pflugervill and delvalle, dripping springs, along with LHSID, Mannor may be a maybe, no burnet, also sheryland and burnet and mcallan. 
+JS wants to combine all the efforts. 
+we need to check with Blair on the level of detail, and resolution. 
+CMTA does performaci modeling, MEP engineer
+Alpha does assessments and cost
+CMTA will tell us what combinations of alpha needs to get. 
+they can say if you swap and perforamnce compairisons. 
+so north start of the prism is to plan for a bond. the mainence and sub domain is secondary. 
+alpha is just spec level items. 
+HT told JS somthing about round up to the 10k. 
+verm is a flat % 
 
-**Vermeulens Licensing Discussion:**
-- Current relationship: Vermeulens charges 2% of project cost for estimates
-- Proposed trade: Pfluger gives project data ↔ Vermeulens gives cost data
-- Hope: No cash exchange - just data trade (they get value from our project data)
-- If Pfluger project uses licensed data → commit to use Vermeulens for estimate
-- They keep data current; we get access to their full dataset
-- Outside Texas: potential franchise opportunity (Vermeulens sells tool to other architects, royalty back to Pfluger)
+**Attendees:**
+AW To have Clair send follow up email
+JS Wants to set up meeting week of 19th to go over 1/15 meeting and consolidated Cam work into it and get on a reoccurring maintenance loop with Verm to update tables. 
+Verm agreed to meeting on 2/4, they have not signed an NDA
+Need to mirage d1, DNA, mapbox
 
-**Blair Concern:**
-- Is Blair speaking for Vermeulens or just himself?
-- TH: "He's always been the highest I've ever talked to"
-- Need to go higher before signing any agreements
-- Blair may be treating this as his career project vs official Vermeulens partnership
-
-**LP Not Needed Yet:**
-- TH: "No" to touching base with Lauren on this
-- Only bring LP in when attorney/contracts needed
-- Current investment is just AW's time - no budget component yet
-
-**Action Items:**
-- [ ] TH/Claire: Email Blair/Vermeulens to discuss licensing for 2026
-- [ ] AW + JS: Sit down to walk through cost estimation flow per Terry's explanation
-- [ ] Explore: What does licensing look like inside vs outside Texas?
-- [ ] Explore: NDA/disclosure with Vermeulens before going deeper
-
-**Districts Discussed:**
-- LHISD (current)
-- Burnet (example used)
-- Del Valle (potential - Dustin)
-- Dripping Springs (mentioned as data source)
-
-**Post-Meeting Email (1/15 AW → Claire, cc TH):**
-> Hello,
->
-> Im following up on some items after our meeting.
->
-> NDA: Did we receive a signed NDA back from Vermeulens?
->
-> Terry would also like to shoot over a coordination email to Blair and his team prompting a discussion about what the partnership looks like in 2026 and the options of licensing data. Here's a draft:
->
-> ---
->
-> Blair,
-> Happy new year, following up on our conversations around the cost estimating tool. We'd like to explore what a licensing arrangement looks like for 2026 - specifically around data sharing and structuring a long term partnership.
->
-> Let me know your availability in the next couple weeks to sit down and talk through the details.
->
-> Thanks,
-> Terry
->
-> ---
->
-> @Terry Hoyle I believe that covers it all?
->
- 
  ---
  
 ### TBD - Turf Melting Analysis (X25-RB11)
@@ -441,29 +401,11 @@ CO says R&B is for differentiation, but then categorizes anything the firm *shou
 - R&B = Ideas CO finds interesting that can be tied to active work
 - Not R&B = Foundational capability building the firm should fund through normal operations (but doesn't)
 
-### Context
-
-- **Revenue decline:** $75M (2024) → ~$50M (2025) → expected decline in 2026
-- **OT was cut firm-wide** to reduce costs during the downturn
-- **Research OT got swept** because designers were the only ones using it
-- **2026 reality:** Every hour needs to be billable
-
-**The problem:** The on-clock model takes 2,000 billable hours and converts them to research. In a year where we need every hour billing, this costs $300,000 in lost revenue.
-
-**The solution:** The OT model keeps those 2,000 hours billable and moves research to after hours. Cost: $33,350 in overhead.
-
-**The irony:** OT was cut to save money, but this specific cut actually reduces revenue.
-
-### Historical Data
-
-**R&B Department:**
+**2025 R&B Department:**
 - 11 active projects in 2025 (X25-RB01 through X25-RB11)
 - 5 Claude accounts allocated (research1-5@pflugerarchitects.com)
 - ~7 active researchers
-
-**2025 Research Hours (actual):** 726 total
-- Hours by research project: 253, 199, 129, 72, 49, 23, 1
-- 7 researchers logged hours
+- 726 Hours by research project: 253, 199, 129, 72, 49, 23, 1
 
 **2026 Research Hours (approved):** 2,000
 
@@ -474,101 +416,6 @@ CO says R&B is for differentiation, but then categorizes anything the firm *shou
 
 This is the reality: even when research is approved, PMs push back to cut hours. On-clock research will always lose to billable work.
 
-**The math of "free" research:**
-
-If the expectation is 2,000 hours of unpaid labor from 7 researchers:
-- ~285 hrs/person/year
-- ~5.5 hrs/week of free work
-- On top of 40 billable hours
-- With no compensation
-
-The 726 vs 2,000 gap shows people aren't doing it. And they won't.
-
-### The Math
-
-**Assumptions:**
-- Employee hourly rate: $50/hr
-- Billing rate to client: $150/hr (3x)
-- Utilization target: 85% (34 billable hrs/week expected)
-- Research OT rate: $50/hr (1:1, not 1.5x)
-- Old policy: First 4 hrs/week research unpaid, paid after
-- Example: 1 person doing 8 hrs research/week
-
----
-
-**Option A: Research on OT (Old Model)**
-
-| Component | Calculation | Amount |
-|-----------|-------------|--------|
-| Revenue | 34 billable hrs × $150 (85% utilization) | +$5,100/week |
-| Base wages | 40 hrs × $50 | -$2,000/week |
-| Research OT | 4 hrs × $50 (first 4 unpaid) | -$200/week |
-| **Net** | | **+$2,900/week** |
-| **Annual** | × 52 weeks | **+$150,800/year** |
-
-**Utilization:** 85% maintained (research is after hours)
-
----
-
-**Option B: Research on Clock (Current Policy)**
-
-| Component | Calculation | Amount |
-|-----------|-------------|--------|
-| Revenue | 27 billable hrs × $150 (8 hrs to research, 32 avail × 85%) | +$4,050/week |
-| Base wages | 40 hrs × $50 | -$2,000/week |
-| **Net** | | **+$2,050/week** |
-| **Annual** | × 52 weeks | **+$106,600/year** |
-
-**Utilization hit:** 85% target → 67.5% actual (8 hrs research out of 40)
-
----
-
-**Per Researcher (8 hrs research/week):**
-
-| | Option A (OT) | Option B (On Clock) | Difference |
-|-|---------------|---------------------|------------|
-| Weekly net | +$2,900 | +$2,050 | -$850/week |
-| Annual net | +$150,800 | +$106,600 | **-$44,200/year** |
-| Utilization | 85% (maintained) | 67.5% (17.5pt drop) | |
-
----
-
-**At Scale: 2,000 Approved Research Hours (10 projects @ 200 hrs each)**
-
-| | Option A (OT) | Option B (On Clock) |
-|-|---------------|---------------------|
-| Research hours | 2,000 | 2,000 |
-| OT cost | 1,000 hrs × $50 = $50,000 (50% paid at 8hr/wk) | $0 |
-| Lost billing (at 85% util) | $0 | 2,000 × $150 × 85% = $255,000 |
-| **Total impact** | **-$50,000** | **-$255,000** |
-
-**The question: Do you want 2,000 research hours for $50k or $255k?**
-
-**2026 with 2,000 Research Hours - Compared to Baseline (No Research):**
-
-To integrate 2,000 hours of research, there are two approaches:
-
-| | Option A: On Clock (New) | Option B: OT (Old) |
-|-|--------------------------|---------------------|
-| Lost revenue (at 85% util) | -$255,000 | $0 |
-| Overhead (OT) | $0 | -$50,000 |
-| **Impact** | **-$255,000 lost revenue** | **-$50,000 overhead** |
-
-**To get the same 2,000 hours of research:**
-- Option A (on clock): **$255,000 in lost revenue** + utilization drops 85% → 67.5%
-- Option B (OT): **$50,000 in overhead** + utilization maintained at 85%
-
-**Option B delivers the same research output at 1/5th the cost, as overhead instead of lost revenue.**
-
-### Additional Consequences
-
-1. **Zero project friction** - Under OT model, research doesn't compete with project deadlines
-2. **Employee incentive** - If OT is only available for research, research becomes desirable
-3. **Training enablement** - Ezra training can happen during research OT, not billable hours
-
-### Recommendation
-
-Restore research OT eligibility. Use Ezra adoption as the pilot program.
 
 ---
 
@@ -586,8 +433,8 @@ Budget will be approved by EOM Jan
 | Cloudflare D1/R2 | Fast, cheap, serverless, already used elsewhere | New vendor approval |  | ~$5-20 | Username/account |
 | Bluehost (existing) | Already approved, MySQL/PHP | Legacy stack, no serverless, no CLI | | Already paying | using HB email and domain@pfluger |
 | Supabase | Modern, Postgres, real-time | New vendor approval | | Free tier / ~$25 | Username/account |
-*| OpenAsset | Already have DAM | Not a database platform || Included in license | Username/account |
-*| Local Egnyte drive | No approval needed | No web access, single point of failure Claude MCP, $11,154/year |
+| OpenAsset | Already have DAM | Not a database platform || Included in license | Username/account |
+| Local Egnyte drive | No approval needed | No web access, single point of failure Claude MCP, $11,154/year |
 | Azure SSO sign in | will cord with Crag on sign in
 
 ### APIs & Services
@@ -637,6 +484,8 @@ Budget will be approved by EOM Jan
 
 ---
 
+Un Resolved Blocks
+
 ## 3. Public Launch (CO, CC)
 
 **Decision Owner:** CO, CC
@@ -663,23 +512,11 @@ Budget will be approved by EOM Jan
 - [ ] Case studies and white papers
 - [ ] Social media / firm website content
 
-### The Problem
-
-Research is completed but sits unpublished. Marketing integration unclear. No clear path from "research done" to "research visible."
-
-### Consequence of Delay
-
-- Cannot launch public-facing pages
-- Research investment yields no external visibility
-- Firm differentiation doesn't happen
-- Thought leadership stays internal with no internal awareness mechanism
-- Competitive advantage from research unrealized
-
 ---
 
 ## 4. Internal Launch (CO, CC, CB)
 
-**Decision Owner:** The directors.
+**Decision Owner:** CO, CB
 **Decision:** Approve internal dashboard for research team
 
 ### What Needs Review
@@ -689,9 +526,6 @@ Research is completed but sits unpublished. Marketing integration unclear. No cl
 - [ ] Pitch submission workflow
 - [ ] Analytics/metrics visibility
 
-### Consequence of Delay
-
-Research team continues using spreadsheets/email. No centralized project tracking.
 
 ---
 
@@ -742,6 +576,8 @@ Directors oversee that it happens
 
 **The problem:** The person with the idea is at the bottom. They must convince up the chain to get hours. Directors "control" hours but don't initiate research. Principals are client-facing but aren't researching. The worker has vision but no agency.
 
+**Action Items**
+AW Cordinated with LF, LF send email to Matt, AW to log all hours under Craft and Prduct.
 ---
 
 ### Design Forum (NEW - per 1/8 meeting)
@@ -783,7 +619,7 @@ Who weren't part of the pitch decision
 
 **The problem:** This adds inspiration/motivation theater but doesn't solve the authority gap. Catalysts can be "empowered" all day, but if Directors control hours and weren't involved in approving the pitch, the catalyst still has to convince up the chain.
 
-**Action Item:** AW to coordinate with Tony on forum date and get R&B on the agenda.
+**Action Item:** AW to coordinate with Tony on forum date and get R&B on the agenda. 
 
 ---
 

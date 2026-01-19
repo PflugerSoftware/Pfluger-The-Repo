@@ -548,7 +548,8 @@ Strings of the playpen that we've put them in and I I just my initial reaction t
 Alex Wickes 1 hour 3 minutes 47 seconds
 I don't mind them seeing anything that we have to offer because it might generate conversations we might not otherwise have. And so because ultimately play all you want, but this is our we're going to together we're going to build what the official.
 Alex Wickes 1 hour 4 minutes 4 seconds
-Response is right and we can then work together to go. We think this is today and this is five years because we're going to do a 10 year plan. So we're going to do a five, you know today of five and 10 years and we'll build that together. But you go play all you want to see what that is and go oh the land and you know it's looking at the land is that land based on.
+Response is right and we can then work together to go. We think th  
+is is today and this is five years because we're going to do a 10 year plan. So we're going to do a five, you know today of five and 10 years and we'll build that together. But you go play all you want to see what that is and go oh the land and you know it's looking at the land is that land based on.
 Alex Wickes 1 hour 4 minutes 24 seconds
 Our prices here or there. And yeah, we've got to tweak that or your market. And they may know the answer faster than we do. Yes, because Dustin was like, I already got the land. It's zero. Yes. And so he moves the slider to 0. Yeah. And we're like, why don't you put it at 0? It's like, yeah, I already got it. I'm like, great. Yeah.
 Alex Wickes 1 hour 4 minutes 42 seconds
