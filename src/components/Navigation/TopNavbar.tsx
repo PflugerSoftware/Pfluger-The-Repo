@@ -5,6 +5,7 @@ import { useAuth } from '../System/AuthContext';
 
 export type ViewType =
   | 'home'
+  | 'login'
   | 'dashboard'
   | 'the-repo'
   | 'schedule'
@@ -138,14 +139,14 @@ const REPO_SECTION: NavSection = {
 };
 
 export function TopNavbar({ onNavigate, onLogoClick }: TopNavbarProps) {
-  const { login, logout, isAuthenticated } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const handleAuthClick = () => {
     if (isAuthenticated) {
       logout();
     } else {
-      login('apps@pflugerarchitects.com', '123456');
+      onNavigate('login');
     }
   };
 

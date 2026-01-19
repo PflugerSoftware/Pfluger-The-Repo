@@ -1,28 +1,20 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Sparkles, Search, FolderOpen, Users, TrendingUp, Plus, MessageSquare, Trash2, BookOpen } from 'lucide-react';
 import { useProjects } from '../../context/ProjectsContext';
-import { queryRAG, type RAGResponse, type Source, type ConversationMessage } from '../../services/rag';
+import { useAuth } from '../../components/System/AuthContext';
+import { queryRAG, type RAGResponse, type ConversationMessage } from '../../services/rag';
+import {
+  loadChatSessions,
+  createChatSession,
+  updateChatSession,
+  deleteChatSession,
+  type ChatSession,
+  type ChatMessage
+} from '../../services/chatHistory';
 
 interface TheRepoProps {
   onNavigate: (view: string) => void;
-}
-
-interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  sources?: Source[];
-  model?: 'haiku' | 'sonnet' | 'opus';
-}
-
-interface ChatSession {
-  id: string;
-  title: string;
-  messages: ChatMessage[];
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 const QUICK_PROMPTS = [
@@ -34,28 +26,51 @@ const QUICK_PROMPTS = [
 
 const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
   const { projects } = useProjects();
+  const { user, isAuthenticated } = useAuth();
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [isLoadingSessions, setIsLoadingSessions] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Load chat sessions from Supabase on mount
+  useEffect(() => {
+    if (isAuthenticated && user?.username) {
+      setIsLoadingSessions(true);
+      loadChatSessions(user.username)
+        .then(sessions => {
+          setChatSessions(sessions);
+        })
+        .finally(() => {
+          setIsLoadingSessions(false);
+        });
+    }
+  }, [isAuthenticated, user?.username]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Save current messages to active session
+  // Save current messages to active session (both local state and Supabase)
+  const saveMessagesToSession = useCallback(async (sessionId: string, msgs: ChatMessage[]) => {
+    // Update local state
+    setChatSessions(prev => prev.map(session =>
+      session.id === sessionId
+        ? { ...session, messages: msgs, updatedAt: new Date() }
+        : session
+    ));
+    // Persist to Supabase
+    await updateChatSession(sessionId, msgs);
+  }, []);
+
   useEffect(() => {
     if (activeSessionId && messages.length > 0) {
-      setChatSessions(prev => prev.map(session =>
-        session.id === activeSessionId
-          ? { ...session, messages, updatedAt: new Date() }
-          : session
-      ));
+      saveMessagesToSession(activeSessionId, messages);
     }
-  }, [messages, activeSessionId]);
+  }, [messages, activeSessionId, saveMessagesToSession]);
 
   const startNewChat = () => {
     setMessages([]);
@@ -68,12 +83,15 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
     setActiveSessionId(session.id);
   };
 
-  const deleteSession = (sessionId: string, e: React.MouseEvent) => {
+  const deleteSession = async (sessionId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    // Remove from local state
     setChatSessions(prev => prev.filter(s => s.id !== sessionId));
     if (activeSessionId === sessionId) {
       startNewChat();
     }
+    // Delete from Supabase
+    await deleteChatSession(sessionId);
   };
 
   const createNewSession = (firstMessage: string): string => {
@@ -84,8 +102,13 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
       createdAt: new Date(),
       updatedAt: new Date()
     };
+    // Add to local state
     setChatSessions(prev => [newSession, ...prev]);
     setActiveSessionId(newSession.id);
+    // Persist to Supabase (if authenticated)
+    if (isAuthenticated && user?.username) {
+      createChatSession(user.username, newSession);
+    }
     return newSession.id;
   };
 
@@ -204,7 +227,7 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
   const hasMessages = messages.length > 0;
 
   return (
-    <div className="h-screen flex overflow-hidden">
+    <div className="h-[calc(100vh-5rem)] flex overflow-hidden">
       {/* Left Sidebar - Chat History */}
       <div className="w-64 shrink-0 bg-card border-r border-card flex flex-col">
         {/* New Chat Button */}
@@ -220,7 +243,12 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
 
         {/* Chat History List */}
         <div className="flex-1 overflow-y-auto px-3 pb-4">
-          {chatSessions.length === 0 ? (
+          {isLoadingSessions ? (
+            <div className="text-center py-8">
+              <div className="w-6 h-6 border-2 border-gray-600 border-t-white rounded-full animate-spin mx-auto mb-2" />
+              <p className="text-sm text-gray-600">Loading history...</p>
+            </div>
+          ) : chatSessions.length === 0 ? (
             <div className="text-center py-8">
               <MessageSquare className="w-8 h-8 text-gray-700 mx-auto mb-2" />
               <p className="text-sm text-gray-600">No conversations yet</p>
@@ -307,7 +335,7 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
                     <button
                       onClick={() => handleSend()}
                       disabled={!inputValue.trim()}
-                      className="p-4 bg-white text-black rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-12 h-12 flex items-center justify-center bg-white text-black rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Send className="w-5 h-5" />
                     </button>
@@ -428,7 +456,7 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
                     <button
                       onClick={() => handleSend()}
                       disabled={!inputValue.trim() || isTyping}
-                      className="p-3 bg-white text-black rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-11 h-11 flex items-center justify-center bg-white text-black rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                     >
                       <Send className="w-5 h-5" />
                     </button>

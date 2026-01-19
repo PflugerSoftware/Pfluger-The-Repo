@@ -1,22 +1,22 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
 interface User {
-  email: string;
+  username: string;
   name: string;
 }
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Hardcoded credentials for now
-const VALID_EMAIL = 'apps@pflugerarchitects.com';
-const VALID_PASSWORD = '123456';
+const VALID_USERNAME = 'software';
+const VALID_PASSWORD = '123456Softwares!';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -32,14 +32,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (username: string, password: string): Promise<boolean> => {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // Check credentials
-    if (email === VALID_EMAIL && password === VALID_PASSWORD) {
+    if (username === VALID_USERNAME && password === VALID_PASSWORD) {
       const userData: User = {
-        email: VALID_EMAIL,
+        username: VALID_USERNAME,
         name: 'Pfluger Team'
       };
 

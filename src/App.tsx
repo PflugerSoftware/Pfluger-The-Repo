@@ -8,6 +8,7 @@ import { TopNavbar } from './components/Navigation/TopNavbar';
 import type { ViewType } from './components/Navigation/TopNavbar';
 
 import Home from './views/Home';
+import Login from './views/Login';
 import Dashboard from './views/Repo/Dashboard';
 import TheRepo from './views/Repo/TheRepo';
 import Schedule from './views/Repo/Schedule';
@@ -62,6 +63,8 @@ function AppContent() {
     switch (view) {
       case 'home':
         return <Home onNavigate={() => {}} onOpenProject={openProject} />;
+      case 'login':
+        return <Login onSuccess={() => handleNavigate('home')} />;
       case 'dashboard':
         return <Dashboard onNavigate={(v) => handleNavigate(v as ViewType)} />;
       case 'the-repo':
