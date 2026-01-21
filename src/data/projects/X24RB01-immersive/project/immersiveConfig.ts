@@ -67,32 +67,32 @@ As part of the GPISD initiative, this study examines the vision, implementation 
       data: {
         images: [
           {
-            src: '/images/projects/X25RB00-immersive/tmclark-ocean.jpeg',
+            src: '/images/projects/X24RB01-immersive/tmclark-ocean.jpeg',
             alt: 'TMC - In The Ocean',
             caption: 'TMC - In The Ocean - Full panoramic immersion with floor projection',
           },
           {
-            src: '/images/projects/X25RB00-immersive/tmclark-eye.jpeg',
+            src: '/images/projects/X24RB01-immersive/tmclark-eye.jpeg',
             alt: 'TMC - The Eye',
             caption: 'TMC - The Eye - Central viewing experience surrounded by immersion',
           },
           {
-            src: '/images/projects/X25RB00-immersive/tmclark-render-03.jpeg',
+            src: '/images/projects/X24RB01-immersive/tmclark-render-03.jpeg',
             alt: 'TM Clark Hands-On Lab',
             caption: 'Hands-On Lab - Flexible making space',
           },
           {
-            src: '/images/projects/X25RB00-immersive/tmclark-render-04.jpeg',
+            src: '/images/projects/X24RB01-immersive/tmclark-render-04.jpeg',
             alt: 'TM Clark Immersive Experience',
             caption: 'Entering Immersion - Student perspective',
           },
           {
-            src: '/images/projects/X25RB00-immersive/tmclark-render-05.jpeg',
+            src: '/images/projects/X24RB01-immersive/tmclark-render-05.jpeg',
             alt: 'TM Clark Ocean Environment',
             caption: 'In The Ocean - Full panoramic immersion',
           },
           {
-            src: '/images/projects/X25RB00-immersive/tmclark-render-06.jpeg',
+            src: '/images/projects/X24RB01-immersive/tmclark-render-06.jpeg',
             alt: 'TM Clark The Eye',
             caption: 'The Eye - Central viewing experience',
           },
@@ -164,12 +164,12 @@ The **Technology Implementation Matrix** can guide the use of immersive technolo
       data: {
         images: [
           {
-            src: '/images/projects/X25RB00-immersive/compositions-bloom.png',
+            src: '/images/projects/X24RB01-immersive/compositions-bloom.png',
             alt: "Bloom's Digital Taxonomy",
             caption: "Bloom's Taxonomy adapted for digital learning environments",
           },
           {
-            src: '/images/projects/X25RB00-immersive/compositions-apple.png',
+            src: '/images/projects/X24RB01-immersive/compositions-apple.png',
             alt: 'Apple Spatial Design Canvas',
             caption: 'Apple guidelines for arranging immersive content alongside the real world',
           },
@@ -350,7 +350,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'device-based',
             title: 'Device-Based',
             subtitle: 'Individual Surfaces',
-            image: '/images/projects/X25RB00-immersive/spacetype-device.png',
+            image: '/images/projects/X24RB01-immersive/spacetype-device.png',
             tags: ['Individual', 'Portable', 'AR/VR'],
             description: 'Individual experience using laptops, tablets, or AR/VR headsets. Hardware can quickly become dated but offers pre-made specialized content. Used in existing classroom seating.',
             metrics: [
@@ -363,7 +363,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'plane-based',
             title: 'Plane-Based',
             subtitle: 'Single Surface',
-            image: '/images/projects/X25RB00-immersive/spacetype-plane.png',
+            image: '/images/projects/X24RB01-immersive/spacetype-plane.png',
             tags: ['Interactive', 'Motion Tracking', 'Projection'],
             description: "Students can interact with touch and body. Parallels contemporary classroom projector hardware but interactive. Easy to retrofit into spaces with wifi.",
             metrics: [
@@ -376,7 +376,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'interaction-based',
             title: 'Interaction Based',
             subtitle: 'Interactable Surface',
-            image: '/images/projects/X25RB00-immersive/spacetype-tactile.png',
+            image: '/images/projects/X24RB01-immersive/spacetype-tactile.png',
             tags: ['Tactile', '3D Glasses', 'Hands-On'],
             description: 'Allows for a tactile experience. Can be paired with 3d glasses for an additional immersive experience. Allows students to experience the curriculum or their creations. Tactile interaction adds additional immersion cues.',
             metrics: [
@@ -389,7 +389,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'panorama-based',
             title: 'Panorama-Based',
             subtitle: 'Shared Surface',
-            image: '/images/projects/X25RB00-immersive/spacetype-shared.png',
+            image: '/images/projects/X24RB01-immersive/spacetype-shared.png',
             tags: ['Panorama', 'Surround Sound', 'Full Immersion'],
             description: "iMax-like experience with spatial audio. The teacher guides an exploring experience. Systems require aligned vision between teachers, staff, and the school. Requires thorough design process.",
             metrics: [
@@ -420,7 +420,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'eyeclick',
             title: 'Eye Click',
             subtitle: 'Interactive Projection Systems',
-            image: '/images/projects/X25RB00-immersive/vendor-eyeclick.png',
+            image: '/images/projects/X24RB01-immersive/vendor-eyeclick.png',
             tags: ['Interactive', 'Motion Tracking', 'Customizable'],
             description: 'Customizable game marketplace with cloud-controlled access and district standardization. Vertical and horizontal projection with integrated motion tracking. Has special needs-based content library.',
             metrics: [
@@ -437,7 +437,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'kidsjump',
             title: 'Kids Jump Tech',
             subtitle: 'Physical + Digital Integration',
-            image: '/images/projects/X25RB00-immersive/vendor-kidsjump.jpeg',
+            image: '/images/projects/X24RB01-immersive/vendor-kidsjump.jpeg',
             tags: ['PE', 'Sensory', 'Climbing', 'Sandbox'],
             description: 'Integrated motion tracking with in-house content and end-user customizable options. Offers interactive sandboxes and multi-touch tables. Physical education and sensory-based content focus.',
             metrics: [
@@ -454,7 +454,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'playlu',
             title: 'Play Lu',
             subtitle: 'Gymnasium Systems',
-            image: '/images/projects/X25RB00-immersive/vendor-playlu.jpeg',
+            image: '/images/projects/X24RB01-immersive/vendor-playlu.jpeg',
             tags: ['Gymnasium', 'PE', 'Academic'],
             description: 'Single, dual, and mobile interactive gym systems. Mixes PE with academics through gamified learning. Requires special wifi privileges and unobstructed view.',
             metrics: [
@@ -471,7 +471,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'elumenati',
             title: 'Elumenati',
             subtitle: 'Panoramic Domes & Projections',
-            image: '/images/projects/X25RB00-immersive/vendor-elumenati.jpeg',
+            image: '/images/projects/X24RB01-immersive/vendor-elumenati.jpeg',
             tags: ['Panorama', '4K', 'Surround Sound'],
             description: '8000lm projection in 4K. Explore 360 content in shared collaborative experiences. Specialized modules developed alongside curriculum with flexible installation constraints.',
             metrics: [
@@ -488,7 +488,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'worldviz',
             title: 'WorldViz',
             subtitle: 'VR Simulation Rooms',
-            image: '/images/projects/X25RB00-immersive/vendor-worldviz.jpeg',
+            image: '/images/projects/X24RB01-immersive/vendor-worldviz.jpeg',
             tags: ['Simulation', 'Prism', 'Touch Control'],
             description: 'Integrated immersive surround sound and touch control. Uses Prism as a user-friendly way to organize and interact with content. Simple controls to create dynamic experiences.',
             metrics: [
@@ -505,7 +505,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'benq',
             title: 'BenQ',
             subtitle: 'Simulation Projectors',
-            image: '/images/projects/X25RB00-immersive/vendor-benq.jpeg',
+            image: '/images/projects/X24RB01-immersive/vendor-benq.jpeg',
             tags: ['Projector', 'Low Maintenance', 'High Accuracy'],
             description: 'Simulation-specific projectors with sealed design that is virtually maintenance-free. High color accuracy and brightness. Lower total cost of ownership compared to alternatives.',
             metrics: [
@@ -522,7 +522,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'classvr',
             title: 'ClassVR',
             subtitle: 'Managed VR Headsets',
-            image: '/images/projects/X25RB00-immersive/vendor-classvr.png',
+            image: '/images/projects/X24RB01-immersive/vendor-classvr.png',
             tags: ['VR Headsets', 'Lesson Plans', 'Managed'],
             description: 'Ready-made lesson plans aligned with immersive content modules. Spotify-based UI for ease of use. Harmful content can be blocked and teachers can see what students are watching.',
             metrics: [
@@ -539,7 +539,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'zspace',
             title: 'zSpace',
             subtitle: 'AR Laptops for STEM',
-            image: '/images/projects/X25RB00-immersive/vendor-zspace.png',
+            image: '/images/projects/X24RB01-immersive/vendor-zspace.png',
             tags: ['AR Laptop', 'STEM', 'Sandbox'],
             description: 'Augmented reality experience for technical applications. A sandbox learning approach with new devices having improved functionality. Works like a laptop cart for secure storage.',
             metrics: [
@@ -587,7 +587,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
           {
             name: 'Panorama Domes',
             subtitle: 'Elumenati',
-            image: '/images/projects/X25RB00-immersive/vendor-elumenati.jpeg',
+            image: '/images/projects/X24RB01-immersive/vendor-elumenati.jpeg',
             options: [
               { name: '6.8m', price: 189000, color: '#00A9E0', specs: [{ label: 'Diameter', value: '22.3 ft' }, { label: 'Audio', value: '5.1 surround' }, { label: 'Capacity', value: '25-30' }], costs: [{ label: 'Device', value: 54, color: '#00A9E0' }, { label: 'Architecture', value: 42, color: '#F2A900' }, { label: 'Content', value: 4, color: '#67823A' }] },
               { name: '5.0m', price: 175000, color: '#3B82F6', specs: [{ label: 'Diameter', value: '16.4 ft' }, { label: 'Audio', value: '5.1 surround' }, { label: 'Capacity', value: '15-20' }], costs: [{ label: 'Device', value: 50, color: '#00A9E0' }, { label: 'Architecture', value: 46, color: '#F2A900' }, { label: 'Content', value: 4, color: '#67823A' }] },
@@ -597,7 +597,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
           {
             name: 'Gym Systems',
             subtitle: 'Play Lu',
-            image: '/images/projects/X25RB00-immersive/vendor-playlu.jpeg',
+            image: '/images/projects/X24RB01-immersive/vendor-playlu.jpeg',
             options: [
               { name: 'Duo', price: 78000, color: '#9A3324', specs: [{ label: 'Sides', value: 'Dual' }, { label: 'Space', value: 'Full gym' }], costs: [{ label: 'Device', value: 84, color: '#00A9E0' }, { label: 'Content', value: 10, color: '#67823A' }, { label: 'Architecture', value: 6, color: '#F2A900' }] },
               { name: 'Mobile', price: 49000, color: '#DC2626', specs: [{ label: 'Sides', value: 'Single' }, { label: 'Space', value: 'Portable' }], costs: [{ label: 'Device', value: 82, color: '#00A9E0' }, { label: 'Content', value: 16, color: '#67823A' }, { label: 'Architecture', value: 2, color: '#F2A900' }] },
@@ -607,7 +607,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
           {
             name: 'Wall Projectors',
             subtitle: 'Kids Jump Tech',
-            image: '/images/projects/X25RB00-immersive/vendor-kidsjump.jpeg',
+            image: '/images/projects/X24RB01-immersive/vendor-kidsjump.jpeg',
             options: [
               { name: 'Fixed', price: 14000, color: '#67823A', specs: [{ label: 'Lumens', value: '5000lm' }, { label: 'Install', value: 'Permanent' }], costs: [{ label: 'Device', value: 64, color: '#00A9E0' }, { label: 'Architecture', value: 36, color: '#F2A900' }] },
               { name: 'Mobile', price: 13000, color: '#84CC16', specs: [{ label: 'Lumens', value: '5000lm' }, { label: 'Install', value: 'Portable' }], costs: [{ label: 'Device', value: 98, color: '#00A9E0' }, { label: 'Architecture', value: 2, color: '#F2A900' }] },
@@ -616,7 +616,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
           {
             name: 'Floor Projectors',
             subtitle: 'Kids Jump Tech',
-            image: '/images/projects/X25RB00-immersive/vendor-kidsjump.jpeg',
+            image: '/images/projects/X24RB01-immersive/vendor-kidsjump.jpeg',
             options: [
               { name: 'Mobile', price: 15000, color: '#67823A', specs: [{ label: 'Lumens', value: '5000lm' }, { label: 'Install', value: 'Portable' }], costs: [{ label: 'Device', value: 98, color: '#00A9E0' }, { label: 'Architecture', value: 2, color: '#F2A900' }] },
               { name: 'Fixed', price: 12000, color: '#84CC16', specs: [{ label: 'Lumens', value: '5200lm' }, { label: 'Install', value: 'Permanent' }], costs: [{ label: 'Device', value: 58, color: '#00A9E0' }, { label: 'Architecture', value: 42, color: '#F2A900' }] },
@@ -634,7 +634,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
           {
             name: 'Tactile Systems',
             subtitle: 'Kids Jump Tech',
-            image: '/images/projects/X25RB00-immersive/vendor-kidsjump.jpeg',
+            image: '/images/projects/X24RB01-immersive/vendor-kidsjump.jpeg',
             options: [
               { name: 'Sandbox', price: 19000, color: '#67823A', specs: [{ label: 'Lumens', value: '6200lm' }, { label: 'Type', value: 'AR tactile' }], costs: [{ label: 'Device', value: 89, color: '#00A9E0' }, { label: 'Architecture', value: 11, color: '#F2A900' }] },
               { name: 'Touch Table', price: 9000, color: '#84CC16', specs: [{ label: 'Size', value: '65"' }, { label: 'Type', value: '4K multi-touch' }], costs: [{ label: 'Device', value: 88, color: '#00A9E0' }, { label: 'Architecture', value: 12, color: '#F2A900' }] },
@@ -656,8 +656,8 @@ Each layer has different options ranging from generalized/low-cost to specialize
       id: 'tmclark-hero-renders',
       data: {
         images: [
-          { src: '/images/projects/X25RB00-immersive/tmclark-render-01.png', alt: 'TM Clark Immersive Library - Ocean View', caption: 'Immersive Library - Ocean Environment' },
-          { src: '/images/projects/X25RB00-immersive/tmclark-render-02.png', alt: 'TM Clark Immersive Library - Alternate View', caption: 'Immersive Library - Interactive Floor' },
+          { src: '/images/projects/X24RB01-immersive/tmclark-render-01.png', alt: 'TM Clark Immersive Library - Ocean View', caption: 'Immersive Library - Ocean Environment' },
+          { src: '/images/projects/X24RB01-immersive/tmclark-render-02.png', alt: 'TM Clark Immersive Library - Alternate View', caption: 'Immersive Library - Interactive Floor' },
         ],
         columns: 2,
       },
@@ -723,7 +723,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
       data: {
         images: [
           {
-            src: '/images/projects/X25RB00-immersive/tmclark-floorplan-circulation.png',
+            src: '/images/projects/X24RB01-immersive/tmclark-floorplan-circulation.png',
             alt: 'TM Clark Learning Zone Circulation Floor Plan',
             caption: 'Immersive Learning Floor Plan - Progressive levels of immersion',
           },
@@ -791,17 +791,17 @@ Each layer has different options ranging from generalized/low-cost to specialize
       data: {
         images: [
           {
-            src: '/images/projects/X25RB00-immersive/tmclark-lighting-01.png',
+            src: '/images/projects/X24RB01-immersive/tmclark-lighting-01.png',
             alt: 'TM Clark Lighting Analysis - Base Line',
             caption: 'TMC Maker Lab Natural + Artificial Illuminance: Base Line No Shades/Tint',
           },
           {
-            src: '/images/projects/X25RB00-immersive/tmclark-lighting-02.png',
+            src: '/images/projects/X24RB01-immersive/tmclark-lighting-02.png',
             alt: 'TM Clark Lighting Analysis - Tint Application',
             caption: 'TMC Maker Lab Natural + Artificial Illuminance: Tint Application',
           },
           {
-            src: '/images/projects/X25RB00-immersive/tmclark-lighting-03.png',
+            src: '/images/projects/X24RB01-immersive/tmclark-lighting-03.png',
             alt: 'TM Clark Lighting Analysis - Shade/Tint Application',
             caption: 'TMC Maker Lab Natural + Artificial Illuminance: Shade/Tint Application',
           },
@@ -827,7 +827,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'eastcliff',
             title: 'East Cliff',
             subtitle: 'Immersive Learning Vision',
-            image: '/images/projects/X25RB00-immersive/gpisd-eastcliff-plan.jpeg',
+            image: '/images/projects/X24RB01-immersive/gpisd-eastcliff-plan.jpeg',
             tags: ['New Construction', 'K-5'],
             description: 'New construction with immersive library featuring panoramic projection and flexible learning spaces.',
             metrics: [
@@ -844,7 +844,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'newaustin',
             title: 'New Austin',
             subtitle: 'Immersive Learning Vision',
-            image: '/images/projects/X25RB00-immersive/gpisd-newaustin-plan.jpeg',
+            image: '/images/projects/X24RB01-immersive/gpisd-newaustin-plan.jpeg',
             tags: ['New Construction', 'K-5'],
             description: 'New construction project with comprehensive immersive learning integration from the ground up.',
             metrics: [
@@ -862,7 +862,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
             id: 'wcandrews',
             title: 'WC Andrews',
             subtitle: 'Immersive Learning Vision',
-            image: '/images/projects/X25RB00-immersive/gpisd-wcandrews-plan.jpeg',
+            image: '/images/projects/X24RB01-immersive/gpisd-wcandrews-plan.jpeg',
             tags: ['Renovation', 'K-5'],
             description: 'Renovation project bringing immersive learning capabilities to an existing facility.',
             metrics: [
@@ -942,7 +942,7 @@ Each layer has different options ranging from generalized/low-cost to specialize
       data: {
         images: [
           {
-            src: '/images/projects/X25RB00-immersive/gpisd-axon-concept.png',
+            src: '/images/projects/X24RB01-immersive/gpisd-axon-concept.png',
             alt: 'East Cliff Library Axon - Immersive Learning Lab Concept',
             caption: 'East Cliff Library - Shared Surface: Panorama concept with 15\' panorama, 5.1 surround sound, and flexible seating',
           },
@@ -957,32 +957,32 @@ Each layer has different options ranging from generalized/low-cost to specialize
       data: {
         images: [
           {
-            src: '/images/projects/X25RB00-immersive/project-eastcliff-01.png',
+            src: '/images/projects/X24RB01-immersive/project-eastcliff-01.png',
             alt: 'East Cliff Library - Outside Panorama',
             caption: 'Outside the Panorama - Equal and different options',
           },
           {
-            src: '/images/projects/X25RB00-immersive/project-eastcliff-02.png',
+            src: '/images/projects/X24RB01-immersive/project-eastcliff-02.png',
             alt: 'East Cliff Library - Inside Panorama View 1',
             caption: 'Inside the Panorama - Immersive experience',
           },
           {
-            src: '/images/projects/X25RB00-immersive/project-eastcliff-03.png',
+            src: '/images/projects/X24RB01-immersive/project-eastcliff-03.png',
             alt: 'East Cliff Library - Inside Panorama View 2',
             caption: 'Inside the Panorama - Student perspective',
           },
           {
-            src: '/images/projects/X25RB00-immersive/gpisd-render-01.png',
+            src: '/images/projects/X24RB01-immersive/gpisd-render-01.png',
             alt: 'GPISD Immersive Library Rendering',
             caption: 'Immersive Library - Full panoramic experience',
           },
           {
-            src: '/images/projects/X25RB00-immersive/gpisd-render-02.png',
+            src: '/images/projects/X24RB01-immersive/gpisd-render-02.png',
             alt: 'GPISD Immersive Library Rendering',
             caption: 'Immersive Library - Student engagement view',
           },
           {
-            src: '/images/projects/X25RB00-immersive/gpisd-render-03.png',
+            src: '/images/projects/X24RB01-immersive/gpisd-render-03.png',
             alt: 'GPISD Immersive Library Rendering',
             caption: 'Immersive Library - Panorama and flex space',
           },

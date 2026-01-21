@@ -4,6 +4,7 @@ import { Send, Sparkles, Search, FolderOpen, Users, TrendingUp, Plus, MessageSqu
 import { useProjects } from '../../context/ProjectsContext';
 import { useAuth } from '../../components/System/AuthContext';
 import { queryRAG, type RAGResponse, type ConversationMessage } from '../../services/rag';
+import { stripMarkdown } from '../../services/pitchAgent';
 import {
   loadChatSessions,
   createChatSession,
@@ -12,6 +13,7 @@ import {
   type ChatSession,
   type ChatMessage
 } from '../../services/chatHistory';
+import { getUserByEmail } from '../../services/pitchService';
 
 interface TheRepoProps {
   onNavigate: (view: string) => void;
@@ -33,14 +35,24 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [isLoadingSessions, setIsLoadingSessions] = useState(false);
+  const [userUUID, setUserUUID] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Load chat sessions from Supabase on mount
+  // Load user UUID and chat sessions from Supabase on mount
   useEffect(() => {
     if (isAuthenticated && user?.username) {
       setIsLoadingSessions(true);
-      loadChatSessions(user.username)
+      // First get the user's UUID from their email
+      getUserByEmail(user.username)
+        .then(dbUser => {
+          if (dbUser) {
+            setUserUUID(dbUser.id);
+            // Then load their chat sessions using the UUID
+            return loadChatSessions(dbUser.id);
+          }
+          return [];
+        })
         .then(sessions => {
           setChatSessions(sessions);
         })
@@ -95,9 +107,14 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
   };
 
   const createNewSession = (firstMessage: string): string => {
+    if (!userUUID) {
+      console.error('Cannot create session: user UUID not loaded');
+      return '';
+    }
+
     const newSession: ChatSession = {
       id: Date.now().toString(),
-      userId: '00000000-0000-0000-0000-000000000001', // TODO: Get from auth context
+      userId: userUUID,
       title: firstMessage.slice(0, 40) + (firstMessage.length > 40 ? '...' : ''),
       messages: [],
       createdAt: new Date(),
@@ -107,8 +124,8 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
     setChatSessions(prev => [newSession, ...prev]);
     setActiveSessionId(newSession.id);
     // Persist to Supabase (if authenticated)
-    if (isAuthenticated) {
-      createChatSession('00000000-0000-0000-0000-000000000001', newSession);
+    if (isAuthenticated && userUUID) {
+      createChatSession(userUUID, newSession);
     }
     return newSession.id;
   };
@@ -190,7 +207,7 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
         const assistantMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: simpleResponse,
+          content: stripMarkdown(simpleResponse),
           timestamp: new Date()
         };
         setMessages(prev => [...prev, assistantMessage]);
@@ -200,7 +217,7 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
         const assistantMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: ragResponse.answer,
+          content: stripMarkdown(ragResponse.answer),
           timestamp: new Date(),
           sources: ragResponse.sources,
           model: ragResponse.model_used
@@ -212,7 +229,7 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Sorry, I encountered an error processing your request. Please try again.',
+        content: stripMarkdown('Sorry, I encountered an error processing your request. Please try again.'),
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);

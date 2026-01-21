@@ -9,10 +9,14 @@ export type PitchStatus = 'pending' | 'revise' | 'greenlit';
 export interface Pitch {
   id: string;
   userId: string | null;
+  userName: string | null;
   title: string;
   status: PitchStatus;
   researchIdea: string;
   alignment: string | null;
+  projectName: string | null;
+  buildingOff: string | null;
+  partner: string | null;
   methodology: string | null;
   scopeTier: string | null;
   impact: string | null;
@@ -68,12 +72,18 @@ interface PitchRow {
   status: string;
   research_idea: string;
   alignment: string | null;
+  project_name: string | null;
+  building_off: string | null;
+  partner: string | null;
   methodology: string | null;
   scope_tier: string | null;
   impact: string | null;
   timeline: string | null;
   created_at: string;
   updated_at: string;
+  users?: {
+    name: string;
+  };
 }
 
 interface PitchAiSessionRow {
@@ -106,10 +116,14 @@ function rowToPitch(row: PitchRow): Pitch {
   return {
     id: row.id,
     userId: row.user_id,
+    userName: row.users?.name || null,
     title: row.title,
     status: row.status as PitchStatus,
     researchIdea: row.research_idea,
     alignment: row.alignment,
+    projectName: row.project_name,
+    buildingOff: row.building_off,
+    partner: row.partner,
     methodology: row.methodology,
     scopeTier: row.scope_tier,
     impact: row.impact,
@@ -162,7 +176,10 @@ export async function getPitches(options?: {
 }): Promise<Pitch[]> {
   let query = supabase
     .from('pitches')
-    .select('*')
+    .select(`
+      *,
+      users (name)
+    `)
     .order('created_at', { ascending: false });
 
   if (options?.userId) {
@@ -213,6 +230,9 @@ export async function createPitch(pitch: {
   researchIdea: string;
   status?: PitchStatus;
   alignment?: string;
+  projectName?: string;
+  buildingOff?: string;
+  partner?: string;
   methodology?: string;
   scopeTier?: string;
   impact?: string;
@@ -227,6 +247,9 @@ export async function createPitch(pitch: {
       research_idea: pitch.researchIdea,
       status: pitch.status || 'pending',
       alignment: pitch.alignment || null,
+      project_name: pitch.projectName || null,
+      building_off: pitch.buildingOff || null,
+      partner: pitch.partner || null,
       methodology: pitch.methodology || null,
       scope_tier: pitch.scopeTier || null,
       impact: pitch.impact || null,
@@ -254,6 +277,9 @@ export async function updatePitch(
     status: PitchStatus;
     researchIdea: string;
     alignment: string;
+    projectName: string;
+    buildingOff: string;
+    partner: string;
     methodology: string;
     scopeTier: string;
     impact: string;
@@ -267,6 +293,9 @@ export async function updatePitch(
   if (updates.status !== undefined) dbUpdates.status = updates.status;
   if (updates.researchIdea !== undefined) dbUpdates.research_idea = updates.researchIdea;
   if (updates.alignment !== undefined) dbUpdates.alignment = updates.alignment;
+  if (updates.projectName !== undefined) dbUpdates.project_name = updates.projectName;
+  if (updates.buildingOff !== undefined) dbUpdates.building_off = updates.buildingOff;
+  if (updates.partner !== undefined) dbUpdates.partner = updates.partner;
   if (updates.methodology !== undefined) dbUpdates.methodology = updates.methodology;
   if (updates.scopeTier !== undefined) dbUpdates.scope_tier = updates.scopeTier;
   if (updates.impact !== undefined) dbUpdates.impact = updates.impact;

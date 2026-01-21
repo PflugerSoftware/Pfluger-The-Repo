@@ -88,17 +88,17 @@ This idea can be explored in Pfluger's design for **Hidden Lake Elementary Schoo
       data: {
         images: [
           {
-            src: '/images/projects/X25RB01-sanctuary/Shape - Hidden Lake ES.jpg',
+            src: '/images/projects/X25RB01-sanctuary/x25rb01-shape-hidden-lake-es.jpg',
             alt: 'Shared Learning Space at Hidden Lake Elementary School',
             caption: 'Shared Learning - Hidden Lake ES - Pfluger Architects, 2023',
           },
           {
-            src: '/images/projects/X25RB01-sanctuary/Scale - Del Valle CDC reading nook.png',
+            src: '/images/projects/X25RB01-sanctuary/x25rb01-scale-del-valle-cdc-reading-nook.png',
             alt: 'Reading nook at Del Valle CDC',
             caption: 'Reading Nook - Del Valle CDC - Pfluger Architects',
           },
           {
-            src: '/images/projects/X25RB01-sanctuary/Scale - The Harvey Schools.jpg',
+            src: '/images/projects/X25RB01-sanctuary/x25rb01-scale-the-harvey-schools.jpg',
             alt: 'The Harvey Schools interior',
             caption: 'The Harvey Schools - Pfluger Architects',
           },
@@ -132,7 +132,7 @@ In the case of **George Peabody Elementary School** in Oak Cliff, colors were us
       data: {
         images: [
           {
-            src: '/images/projects/X25RB01-sanctuary/Peabody Elementary School_Dallas ISD_Griffith_Int_15.jpg',
+            src: '/images/projects/X25RB01-sanctuary/x25rb01-peabody-elementary-school-dallas-isd-griffith-int-15.jpg',
             alt: 'Cafeteria at George Peabody Elementary School',
             caption: 'Color Tuning a Cafeteria - George Peabody ES - Pfluger Architects, 2024',
           },
@@ -191,7 +191,7 @@ Tall, wooden slat panels with felt backing provide acoustic treatment as well an
       data: {
         images: [
           {
-            src: '/images/projects/X25RB01-sanctuary/Martinez Elementary_Final-10152.jpg',
+            src: '/images/projects/X25RB01-sanctuary/x25rb01-martinez-elementary-final-10152.jpg',
             alt: 'Gathering Space at Dorothy Martinez Elementary School',
             caption: 'Gathering Space - Dorothy Martinez ES - Pfluger Architects, 2024',
           },
@@ -246,7 +246,7 @@ When it comes to incorporating biophilic elements in the design of schools and e
       data: {
         images: [
           {
-            src: '/images/projects/X25RB01-sanctuary/Courtyard_Final.jpg',
+            src: '/images/projects/X25RB01-sanctuary/x25rb01-courtyard-final.jpg',
             alt: 'Courtyard with natural elements',
             caption: 'Courtyard Design - Pfluger Architects',
           },
@@ -284,7 +284,7 @@ These carved-out sanctuaries invite quiet focus or co-regulation among peers. Th
       data: {
         images: [
           {
-            src: '/images/projects/X25RB01-sanctuary/Martinez Elementary_Final-10607.jpg',
+            src: '/images/projects/X25RB01-sanctuary/x25rb01-martinez-elementary-final-10607.jpg',
             alt: 'Media Center Reading Pods at Dorothy Martinez Elementary School',
             caption: 'Media Center Reading Pods - Dorothy Martinez ES - Pfluger Architects, 2024',
           },

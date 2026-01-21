@@ -3,9 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './index.css';
 
 import { ThemeProvider } from './components/System/ThemeManager';
-import { AuthProvider } from './components/System/AuthContext';
+import { AuthProvider, useAuth } from './components/System/AuthContext';
 import { TopNavbar } from './components/Navigation/TopNavbar';
 import type { ViewType } from './components/Navigation/TopNavbar';
+import { logPageView } from './services/analytics';
+import { getUserByEmail } from './services/pitchService';
 
 import Home from './views/Home';
 import Login from './views/Login';
@@ -30,12 +32,36 @@ import { showcaseConfig } from './data/projects/X00-block-showcase/project/showc
 type ProjectOverlay = string | null;
 
 function AppContent() {
+  const { user, isAuthenticated } = useAuth();
   const [view, setView] = useState<ViewType>('home');
+  const [previousView, setPreviousView] = useState<ViewType>('home');
   const [projectOverlay, setProjectOverlay] = useState<ProjectOverlay>(null);
+  const [userUUID, setUserUUID] = useState<string | null>(null);
+
+  // Load user UUID when authenticated
+  useEffect(() => {
+    if (isAuthenticated && user?.username) {
+      getUserByEmail(user.username).then(dbUser => {
+        if (dbUser) {
+          setUserUUID(dbUser.id);
+        }
+      });
+    } else {
+      setUserUUID(null);
+    }
+  }, [isAuthenticated, user?.username]);
+
+  // Track page views when view changes
+  useEffect(() => {
+    if (userUUID && view) {
+      logPageView(userUUID, view, previousView !== view ? previousView : null);
+    }
+  }, [view, userUUID]);
 
   const handleNavigate = (newView: ViewType) => {
     // Close project overlay when navigating away
     setProjectOverlay(null);
+    setPreviousView(view);
     setView(newView);
   };
 

@@ -16,6 +16,7 @@ import {
   Target,
   Loader2
 } from 'lucide-react';
+import { useAuth } from '../../components/System/AuthContext';
 import { type PitchData } from '../../components/Pitch/PitchCard';
 import { PitchChatPanel } from '../../components/Pitch/PitchChatPanel';
 import { ScheduleCard } from '../../components/Pitch/ScheduleCard';
@@ -59,15 +60,33 @@ const getMethodInfo = (value: string) => RESEARCH_METHODS.find(m => m.value === 
 // Helper to format timeline from weeks
 const formatTimeline = (weeks: [number, number]) => `${weeks[0]}-${weeks[1]} weeks`;
 
+// Helper to calculate hours per week from scope and timeline
+const calculateHoursPerWeek = (scope: string, timeline: string): number => {
+  // Extract weeks from timeline (e.g., "5-15 weeks" or "8 weeks")
+  const weeksMatch = timeline.match(/(\d+)(?:-(\d+))?\s*weeks?/i);
+  if (!weeksMatch) return 4; // Default to 4 hrs/week if can't parse
+
+  // Use average weeks if range, otherwise use the single value
+  const minWeeks = parseInt(weeksMatch[1]);
+  const maxWeeks = weeksMatch[2] ? parseInt(weeksMatch[2]) : minWeeks;
+  const avgWeeks = (minWeeks + maxWeeks) / 2;
+
+  // Get total hours for scope
+  const methodInfo = RESEARCH_METHODS.find(m => m.scope === scope);
+  if (!methodInfo) return 4; // Default if scope not found
+
+  const avgHours = (methodInfo.hours[0] + methodInfo.hours[1]) / 2;
+
+  // Calculate hours per week
+  return Math.round(avgHours / avgWeeks);
+};
+
 // Scope labels for display
 const SCOPE_LABELS: Record<string, { label: string; color: string }> = {
   simple: { label: 'Simple', color: 'text-green-400' },
   medium: { label: 'Medium', color: 'text-yellow-400' },
   complex: { label: 'Complex', color: 'text-red-400' },
 };
-
-// Dev user email (temporary until real auth)
-const DEV_USER_EMAIL = 'software@pflugerarchitects.com';
 
 const STATUS_CONFIG = {
   pending: { label: 'Pending Review', color: 'text-yellow-400', bg: 'bg-yellow-900/30', border: 'border-yellow-800', icon: Clock },
@@ -80,6 +99,9 @@ interface PitchSubmissionProps {
 }
 
 const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'new' }) => {
+  // Auth context
+  const { user: authUser } = useAuth();
+
   // View state
   const [viewMode, setViewMode] = useState<'my-pitches' | 'new'>(initialViewMode);
   const [pitchPath, setPitchPath] = useState<PitchPath>('choice');
@@ -89,7 +111,7 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Current user
+  // Current user (from database)
   const [currentUser, setCurrentUser] = useState<DbUser | null>(null);
 
   // Pitches from database
@@ -101,6 +123,9 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
   const [pitchComments, setPitchComments] = useState<PitchComment[]>([]);
   const [commentInput, setCommentInput] = useState('');
 
+  // Edit mode for pitch review
+  const [isEditingPitch, setIsEditingPitch] = useState(false);
+
   // Track if pitch is ready for final review
   const [isPitchComplete, setIsPitchComplete] = useState(false);
 
@@ -108,6 +133,8 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
   const [pitchData, setPitchData] = useState<PitchData>({
     researchIdea: '',
     alignment: '',
+    projectName: '',
+    buildingOff: '',
     methodology: '',
     scopeTier: '',
     impact: '',
@@ -116,19 +143,26 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
     partners: ''
   });
 
-  // Load data on mount
+  // Load data on mount or when auth user changes
   useEffect(() => {
     async function loadData() {
+      if (!authUser) return;
+
       setIsLoading(true);
       try {
-        // Get current user
-        const user = await getUserByEmail(DEV_USER_EMAIL);
+        // Get current user from database
+        const user = await getUserByEmail(authUser.username);
         setCurrentUser(user);
 
-        // Load my pitches (assigned to me)
         if (user) {
-          const mine = await getPitches({ userId: user.id });
-          setMyPitches(mine);
+          // Admin sees ALL pitches, Researcher sees only their own
+          if (authUser.role === 'admin') {
+            const allPitches = await getPitches();
+            setMyPitches(allPitches);
+          } else {
+            const mine = await getPitches({ userId: user.id });
+            setMyPitches(mine);
+          }
         }
 
         // Load available greenlit pitches (unclaimed)
@@ -141,7 +175,7 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
       }
     }
     loadData();
-  }, []);
+  }, [authUser]);
 
   // Load comments when expanded pitch changes
   useEffect(() => {
@@ -163,6 +197,8 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
     setPitchData({
       researchIdea: '',
       alignment: '',
+      projectName: '',
+      buildingOff: '',
       methodology: '',
       scopeTier: '',
       impact: '',
@@ -238,6 +274,9 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
         researchIdea: pitchData.researchIdea,
         status: 'pending',
         alignment: pitchData.alignment || undefined,
+        projectName: pitchData.projectName || undefined,
+        buildingOff: pitchData.buildingOff || undefined,
+        partner: pitchData.partners || undefined,
         methodology: pitchData.methodology || undefined,
         scopeTier: pitchData.scopeTier || undefined,
         impact: pitchData.impact || undefined,
@@ -257,6 +296,8 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
         setPitchData({
           researchIdea: '',
           alignment: '',
+          projectName: '',
+          buildingOff: '',
           methodology: '',
           scopeTier: '',
           impact: '',
@@ -289,9 +330,18 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
       if (extracted.projectConnection) {
         // Map agent values to PitchData alignment type
         const alignment = extracted.projectConnection.toLowerCase();
-        if (alignment === 'current-project' || alignment === 'thought-leadership') {
+        if (alignment === 'current-project' || alignment === 'prospected-project' || alignment === 'thought-leadership') {
           updates.alignment = alignment;
         }
+      }
+      if (extracted.projectName) {
+        updates.projectName = extracted.projectName;
+      }
+      if (extracted.buildingOff) {
+        updates.buildingOff = extracted.buildingOff;
+      }
+      if (extracted.partner) {
+        updates.partners = extracted.partner;
       }
       if (extracted.successMetrics) {
         updates.impact = extracted.successMetrics;
@@ -526,7 +576,10 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
         </div>
 
         <div className="mt-4 pt-4 border-t border-gray-800">
-          <ScheduleCard proposedScope={pitchData.scopeTier as 'simple' | 'medium' | 'complex' | ''} />
+          <ScheduleCard
+            proposedScope={pitchData.scopeTier as 'simple' | 'medium' | 'complex' | ''}
+            hoursPerWeek={pitchData.scopeTier && pitchData.timeline ? calculateHoursPerWeek(pitchData.scopeTier, pitchData.timeline) : undefined}
+          />
         </div>
       </div>
     );
@@ -598,10 +651,35 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Project Connection</h3>
             <p className="text-white text-sm capitalize">
               {pitchData.alignment === 'current-project' ? 'Connected to Current Project' :
+               pitchData.alignment === 'prospected-project' ? 'Prospected Project (Future/Potential)' :
                pitchData.alignment === 'thought-leadership' ? 'Thought Leadership / General Research' :
                'Not specified'}
             </p>
           </div>
+
+          {/* Project Name (conditional) */}
+          {pitchData.projectName && (pitchData.alignment === 'current-project' || pitchData.alignment === 'prospected-project') && (
+            <div>
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Project Name/Number</h3>
+              <p className="text-white text-sm">{pitchData.projectName}</p>
+            </div>
+          )}
+
+          {/* Building Off */}
+          {pitchData.buildingOff && (
+            <div>
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Building Off</h3>
+              <p className="text-white text-sm">{pitchData.buildingOff}</p>
+            </div>
+          )}
+
+          {/* Partner */}
+          {pitchData.partners && (
+            <div>
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Partner/Organization</h3>
+              <p className="text-white text-sm">{pitchData.partners}</p>
+            </div>
+          )}
 
           {/* Timeline */}
           {pitchData.timeline && (
@@ -651,8 +729,8 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
       // Show final review when pitch is complete
       if (isPitchComplete) {
         return (
-          <div className="flex gap-6 h-full overflow-hidden max-w-3xl mx-auto">
-            <div className="flex-1 min-w-0 h-full">
+          <div className="flex gap-6 max-w-3xl mx-auto">
+            <div className="flex-1 min-w-0">
               {renderFinalReview()}
             </div>
           </div>
@@ -661,9 +739,9 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
 
       // Show chat + progress sidebar during development
       return (
-        <div className="flex gap-6 h-full overflow-hidden">
+        <div className="flex gap-6">
           {/* Left: Chat Panel */}
-          <div className="flex-1 min-w-0 h-full">
+          <div className="flex-1 min-w-0">
             <PitchChatPanel onPitchUpdate={handlePitchUpdate} />
           </div>
 
@@ -677,7 +755,7 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
 
     // GreenLit flow: pitch list + details
     return (
-      <div className="flex gap-6 h-full overflow-hidden">
+      <div className="flex gap-6">
         {/* Left: GreenLit List */}
         <div className="flex-1 min-w-0 h-full">
           {renderGreenLitList()}
@@ -720,7 +798,10 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
                 </div>
               </div>
 
-              <ScheduleCard proposedScope={selectedGreenlitPitch.scopeTier as 'simple' | 'medium' | 'complex' | ''} />
+              <ScheduleCard
+                proposedScope={selectedGreenlitPitch.scopeTier as 'simple' | 'medium' | 'complex' | ''}
+                hoursPerWeek={selectedGreenlitPitch.scopeTier && selectedGreenlitPitch.timeline ? calculateHoursPerWeek(selectedGreenlitPitch.scopeTier, selectedGreenlitPitch.timeline) : undefined}
+              />
 
               {/* Claim Button */}
               <motion.button
@@ -753,9 +834,9 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
 
   // Render My Pitches view with full review panel
   const renderMyPitches = () => (
-    <div className="flex gap-6 h-full">
+    <div className="flex gap-6">
       {/* Left: Pitch List */}
-      <div className="w-80 shrink-0 space-y-2 overflow-y-auto">
+      <div className="w-80 shrink-0 space-y-2">
         {myPitches.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <p>No pitches yet.</p>
@@ -787,9 +868,17 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
                   </div>
                 </div>
                 <h3 className="text-sm font-medium text-white line-clamp-2 mb-1">{pitch.title}</h3>
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <Calendar className="w-3 h-3" />
-                  <span>{pitch.createdAt.toLocaleDateString()}</span>
+                <div className="space-y-1">
+                  {pitch.userName && (
+                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                      <User className="w-3 h-3" />
+                      <span>{pitch.userName}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <Calendar className="w-3 h-3" />
+                    <span>{pitch.createdAt.toLocaleDateString()}</span>
+                  </div>
                 </div>
               </motion.button>
             );
@@ -815,147 +904,290 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-card border border-card rounded-2xl h-full flex flex-col overflow-hidden"
+                className="bg-card border border-card rounded-2xl"
               >
-                {/* Header */}
-                <div className="p-6 border-b border-gray-800">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-sm font-mono text-gray-500">{pitch.id}</span>
-                        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs ${status.bg} ${status.border} border`}>
-                          <StatusIcon className={`w-3 h-3 ${status.color}`} />
-                          <span className={status.color}>{status.label}</span>
-                        </div>
-                      </div>
-                      <h2 className="text-xl font-bold text-white mb-2">{pitch.title}</h2>
-                      <div className="flex items-center gap-4 text-sm text-gray-400">
-                        <span className="flex items-center gap-1.5">
-                          <Calendar className="w-4 h-4" />
-                          {pitch.createdAt.toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Status Change Dropdown */}
-                    <select
-                      value={pitch.status}
-                      onChange={(e) => handleStatusChange(pitch.id, e.target.value as PitchStatus)}
-                      className="bg-gray-800 text-white text-sm rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                    >
-                      <option value="pending">Pending Review</option>
-                      <option value="revise">Revise & Resubmit</option>
-                      <option value="greenlit">Green Lit!</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Content - Two columns */}
-                <div className="flex-1 overflow-y-auto p-6">
+                {/* Content - Horizontal Layout: Hero Card + Chat */}
+                <div className="p-6">
                   <div className="grid grid-cols-2 gap-6">
-                    {/* Left Column: Pitch Details */}
-                    <div className="space-y-5">
-                      {/* Research Question */}
-                      <div>
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
-                          Research Question
-                        </label>
-                        <textarea
-                          value={pitch.researchIdea}
-                          onChange={(e) => handleUpdatePitchField(pitch.id, 'researchIdea', e.target.value)}
-                          rows={3}
-                          className="w-full bg-gray-800 text-white text-sm rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:ring-1 focus:ring-sky-500 resize-none"
-                        />
-                      </div>
-
-                      {/* Research Method (Combined Scope + Methodology) */}
-                      <div>
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
-                          Research Method
-                        </label>
-                        <select
-                          value={pitch.scopeTier && pitch.methodology ? `${pitch.scopeTier}|${pitch.methodology}` : ''}
-                          onChange={(e) => handleMethodChange(pitch.id, e.target.value)}
-                          className="w-full bg-gray-800 text-white text-sm rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                        >
-                          <option value="">Select research method</option>
-                          <optgroup label="Simple (5-15 weeks)">
-                            {RESEARCH_METHODS.filter(m => m.scope === 'simple').map(m => (
-                              <option key={m.value} value={m.value}>{m.methodology}</option>
-                            ))}
-                          </optgroup>
-                          <optgroup label="Medium (15-30 weeks)">
-                            {RESEARCH_METHODS.filter(m => m.scope === 'medium').map(m => (
-                              <option key={m.value} value={m.value}>{m.methodology}</option>
-                            ))}
-                          </optgroup>
-                          <optgroup label="Complex (30-50 weeks)">
-                            {RESEARCH_METHODS.filter(m => m.scope === 'complex').map(m => (
-                              <option key={m.value} value={m.value}>{m.methodology}</option>
-                            ))}
-                          </optgroup>
-                        </select>
-                      </div>
-
-                      {/* Alignment */}
-                      <div>
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
-                          Project Alignment
-                        </label>
-                        <select
-                          value={pitch.alignment || ''}
-                          onChange={(e) => handleUpdatePitchField(pitch.id, 'alignment', e.target.value)}
-                          className="w-full bg-gray-800 text-white text-sm rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                        >
-                          <option value="">Select type</option>
-                          <option value="current-project">Current Project</option>
-                          <option value="thought-leadership">Thought Leadership</option>
-                        </select>
-                      </div>
-
-                      {/* Impact */}
-                      <div>
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
-                          Expected Impact / Deliverable
-                        </label>
-                        <textarea
-                          value={pitch.impact || ''}
-                          onChange={(e) => handleUpdatePitchField(pitch.id, 'impact', e.target.value)}
-                          rows={2}
-                          placeholder="What will this research produce?"
-                          className="w-full bg-gray-800 text-white text-sm rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:ring-1 focus:ring-sky-500 resize-none"
-                        />
-                      </div>
-
-                      {/* Method Summary Card */}
-                      {methodInfo && scopeLabel && (
-                        <div className={`p-4 rounded-xl border ${
-                          pitch.scopeTier === 'simple' ? 'bg-green-900/20 border-green-800' :
-                          pitch.scopeTier === 'medium' ? 'bg-yellow-900/20 border-yellow-800' :
-                          'bg-red-900/20 border-red-800'
+                    {/* Left: Hero Card with all pitch info */}
+                    <div className="flex flex-col min-w-0">
+                      {methodInfo && scopeLabel ? (
+                        <div className={`flex flex-col rounded-2xl border ${
+                          pitch.status === 'pending' ? 'bg-yellow-900/20 border-yellow-800' :
+                          pitch.status === 'revise' ? 'bg-blue-900/20 border-blue-800' :
+                          pitch.status === 'greenlit' ? 'bg-green-900/20 border-green-800' :
+                          'bg-gray-900/20 border-gray-800'
                         }`}>
-                          <div className="flex items-center gap-2 mb-2">
-                            <Target className={`w-4 h-4 ${scopeLabel.color}`} />
-                            <span className={`text-sm font-medium ${scopeLabel.color}`}>
-                              {scopeLabel.label}
-                            </span>
+                          {/* Hero Header */}
+                          <div className="p-6 border-b border-gray-800/50">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1 min-w-0">
+                                {/* Title */}
+                                <h2 className="text-2xl font-bold text-white mb-3">{pitch.title}</h2>
+
+                                {/* Metadata Row */}
+                                <div className="flex items-center gap-3 text-sm">
+                                  <span className="font-mono text-gray-400">{pitch.id}</span>
+                                  <span className="text-gray-600">•</span>
+
+                                  {/* Status Badge / Picker */}
+                                  {isEditingPitch ? (
+                                    <select
+                                      value={pitch.status}
+                                      onChange={(e) => handleStatusChange(pitch.id, e.target.value as PitchStatus)}
+                                      className="bg-transparent text-white text-xs px-2 py-1 rounded-full border-2 border-sky-500/50 focus:outline-none focus:border-sky-500"
+                                    >
+                                      <option value="pending">Pending</option>
+                                      <option value="revise">Revise</option>
+                                      <option value="greenlit">Green Lit</option>
+                                    </select>
+                                  ) : (
+                                    <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${status.bg} ${status.border} border`}>
+                                      <StatusIcon className={`w-3 h-3 ${status.color}`} />
+                                      <span className={status.color}>{status.label}</span>
+                                    </div>
+                                  )}
+
+                                  <span className="text-gray-600">•</span>
+                                  <span className="text-gray-400 flex items-center gap-1.5">
+                                    <Calendar className="w-3.5 h-3.5" />
+                                    {pitch.createdAt.toLocaleDateString()}
+                                  </span>
+                                </div>
+
+                                {/* Method Badge / Picker */}
+                                {isEditingPitch ? (
+                                  <div className="mt-3">
+                                    <select
+                                      value={pitch.scopeTier && pitch.methodology ? `${pitch.scopeTier}|${pitch.methodology}` : ''}
+                                      onChange={(e) => handleMethodChange(pitch.id, e.target.value)}
+                                      className="bg-transparent text-white text-sm px-2 py-1 rounded-lg border-2 border-sky-500/50 focus:outline-none focus:border-sky-500"
+                                    >
+                                      <option value="">Select research method</option>
+                                      <optgroup label="Simple (20-60 hours)">
+                                        {RESEARCH_METHODS.filter(m => m.scope === 'simple').map(m => (
+                                          <option key={m.value} value={m.value}>{m.methodology}</option>
+                                        ))}
+                                      </optgroup>
+                                      <optgroup label="Medium (60-120 hours)">
+                                        {RESEARCH_METHODS.filter(m => m.scope === 'medium').map(m => (
+                                          <option key={m.value} value={m.value}>{m.methodology}</option>
+                                        ))}
+                                      </optgroup>
+                                      <optgroup label="Complex (120-200 hours)">
+                                        {RESEARCH_METHODS.filter(m => m.scope === 'complex').map(m => (
+                                          <option key={m.value} value={m.value}>{m.methodology}</option>
+                                        ))}
+                                      </optgroup>
+                                    </select>
+                                  </div>
+                                ) : (
+                                  <div className="mt-3 inline-flex items-center gap-2">
+                                    <Target className={`w-4 h-4 ${scopeLabel.color}`} />
+                                    <span className={`text-sm font-semibold ${scopeLabel.color}`}>
+                                      {scopeLabel.label}
+                                    </span>
+                                    <span className="text-gray-600">•</span>
+                                    <span className="text-sm text-white">{methodInfo.methodology}</span>
+                                    <span className="text-gray-600">•</span>
+                                    <span className="text-xs text-gray-400">
+                                      {methodInfo.hours[0]}-{methodInfo.hours[1]} hrs
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Edit Button */}
+                              <button
+                                onClick={() => setIsEditingPitch(!isEditingPitch)}
+                                className={`p-2.5 rounded-lg transition-colors shrink-0 ${
+                                  isEditingPitch
+                                    ? 'bg-white text-black'
+                                    : 'bg-gray-800/50 text-gray-400 hover:text-white hover:bg-gray-700'
+                                }`}
+                              >
+                                {isEditingPitch ? <Check className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
+                              </button>
+                            </div>
                           </div>
-                          <p className="text-sm text-white mb-1">{methodInfo.methodology}</p>
-                          <div className="flex items-center gap-4 text-xs text-gray-400">
-                            <span>{methodInfo.hours[0]}-{methodInfo.hours[1]} hours</span>
-                            {pitch.timeline && (
-                              <>
-                                <span>-</span>
-                                <span>{pitch.timeline}</span>
-                              </>
-                            )}
+
+                          {/* Pitch Details - Unified Layout */}
+                          <div className="p-5 space-y-5">
+                            {/* Pitch Section */}
+                            <div>
+                              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+                                Pitch
+                              </label>
+                              <div className={`space-y-3 text-sm px-3 py-2 ${isEditingPitch ? 'border-2 border-sky-500/50 rounded-lg' : ''}`}>
+                                {/* Research Question */}
+                                <div>
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-gray-400 min-w-[120px] shrink-0">Research Question:</span>
+                                    <div className="flex-1">
+                                      {isEditingPitch ? (
+                                        <textarea
+                                          value={pitch.researchIdea}
+                                          onChange={(e) => handleUpdatePitchField(pitch.id, 'researchIdea', e.target.value)}
+                                          rows={3}
+                                          className="w-full bg-transparent text-white text-sm border-b border-gray-600 focus:outline-none focus:border-white pb-1 resize-none leading-relaxed"
+                                        />
+                                      ) : (
+                                        <span className="text-white leading-relaxed block">
+                                          {pitch.researchIdea || 'Not specified'}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Expected Impact */}
+                                <div>
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-gray-400 min-w-[120px] shrink-0">Expected Impact:</span>
+                                    <div className="flex-1">
+                                      {isEditingPitch ? (
+                                        <textarea
+                                          value={pitch.impact || ''}
+                                          onChange={(e) => handleUpdatePitchField(pitch.id, 'impact', e.target.value)}
+                                          rows={2}
+                                          placeholder="What will this research produce?"
+                                          className="w-full bg-transparent text-white text-sm border-b border-gray-600 focus:outline-none focus:border-white pb-1 resize-none leading-relaxed"
+                                        />
+                                      ) : (
+                                        <span className="text-white leading-relaxed block">
+                                          {pitch.impact || 'Not specified'}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Project & Timeline Info Group */}
+                            <div>
+                              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+                                Project & Timeline
+                              </label>
+                              <div className={`space-y-1.5 text-sm px-3 py-2 ${isEditingPitch ? 'border-2 border-sky-500/50 rounded-lg' : ''}`}>
+                                {/* Alignment */}
+                                <div className="flex items-start gap-2">
+                                  <span className="text-gray-400 min-w-[80px] shrink-0">Alignment:</span>
+                                  {isEditingPitch ? (
+                                    <select
+                                      value={pitch.alignment || ''}
+                                      onChange={(e) => handleUpdatePitchField(pitch.id, 'alignment', e.target.value)}
+                                      className="flex-1 bg-transparent text-white text-sm border-b border-gray-600 focus:outline-none focus:border-white pb-1"
+                                    >
+                                      <option value="">Select</option>
+                                      <option value="current-project">Current Project</option>
+                                      <option value="prospected-project">Prospected Project</option>
+                                      <option value="thought-leadership">Thought Leadership</option>
+                                    </select>
+                                  ) : (
+                                    <span className="text-white flex-1">
+                                      {pitch.alignment === 'current-project' ? 'Current Project' :
+                                       pitch.alignment === 'prospected-project' ? 'Prospected Project' :
+                                       pitch.alignment === 'thought-leadership' ? 'Thought Leadership' :
+                                       'Not specified'}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* Project Name */}
+                                {(isEditingPitch && (pitch.alignment === 'current-project' || pitch.alignment === 'prospected-project')) || pitch.projectName ? (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-gray-400 min-w-[80px] shrink-0">Project:</span>
+                                    {isEditingPitch ? (
+                                      <input
+                                        type="text"
+                                        value={pitch.projectName || ''}
+                                        onChange={(e) => handleUpdatePitchField(pitch.id, 'projectName', e.target.value)}
+                                        placeholder="e.g., 25-05"
+                                        className="flex-1 bg-transparent text-white text-sm border-b border-gray-600 focus:outline-none focus:border-white pb-1"
+                                      />
+                                    ) : (
+                                      <span className="text-white flex-1">{pitch.projectName}</span>
+                                    )}
+                                  </div>
+                                ) : null}
+
+                                {/* Building Off */}
+                                {isEditingPitch || pitch.buildingOff ? (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-gray-400 min-w-[80px] shrink-0">Building Off:</span>
+                                    {isEditingPitch ? (
+                                      <input
+                                        type="text"
+                                        value={pitch.buildingOff || ''}
+                                        onChange={(e) => handleUpdatePitchField(pitch.id, 'buildingOff', e.target.value)}
+                                        placeholder="e.g., X25-RB01"
+                                        className="flex-1 bg-transparent text-white text-sm border-b border-gray-600 focus:outline-none focus:border-white pb-1"
+                                      />
+                                    ) : (
+                                      <span className="text-white flex-1">{pitch.buildingOff}</span>
+                                    )}
+                                  </div>
+                                ) : null}
+
+                                {/* Partner */}
+                                {isEditingPitch || pitch.partner ? (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-gray-400 min-w-[80px] shrink-0">Partner:</span>
+                                    {isEditingPitch ? (
+                                      <input
+                                        type="text"
+                                        value={pitch.partner || ''}
+                                        onChange={(e) => handleUpdatePitchField(pitch.id, 'partner', e.target.value)}
+                                        placeholder="Organization"
+                                        className="flex-1 bg-transparent text-white text-sm border-b border-gray-600 focus:outline-none focus:border-white pb-1"
+                                      />
+                                    ) : (
+                                      <span className="text-white flex-1">{pitch.partner}</span>
+                                    )}
+                                  </div>
+                                ) : null}
+
+                                {/* Timeline */}
+                                <div className="flex items-start gap-2">
+                                  <span className="text-gray-400 min-w-[80px] shrink-0">Timeline:</span>
+                                  {isEditingPitch ? (
+                                    <div className="flex-1 flex gap-2">
+                                      <input
+                                        type="text"
+                                        value={pitch.timeline || ''}
+                                        onChange={(e) => handleUpdatePitchField(pitch.id, 'timeline', e.target.value)}
+                                        placeholder="8-12 weeks"
+                                        className="flex-1 bg-transparent text-white text-sm border-b border-gray-600 focus:outline-none focus:border-white pb-1"
+                                      />
+                                      <span className="text-gray-400 text-sm">
+                                        ({pitch.scopeTier && pitch.timeline ? calculateHoursPerWeek(pitch.scopeTier, pitch.timeline) : '0'} hrs/wk)
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-white flex-1">
+                                      {pitch.timeline || 'Not specified'}
+                                      {pitch.timeline && pitch.scopeTier && (
+                                        <span className="text-gray-400 ml-2">
+                                          ({calculateHoursPerWeek(pitch.scopeTier, pitch.timeline)} hrs/week)
+                                        </span>
+                                      )}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
                           </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-500">
+                          <p className="text-sm">Select a research method to see pitch details</p>
                         </div>
                       )}
                     </div>
 
-                    {/* Right Column: Comments */}
-                    <div className="flex flex-col h-full">
+                    {/* Right: Comments */}
+                    <div className="flex flex-col min-w-0">
                       <div className="flex items-center gap-2 mb-3">
                         <MessageSquare className="w-4 h-4 text-gray-500" />
                         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -964,7 +1196,7 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
                       </div>
 
                       {/* Comments List */}
-                      <div className="flex-1 space-y-3 overflow-y-auto mb-4 max-h-64">
+                      <div className="space-y-3 mb-4">
                         {pitchComments.length === 0 ? (
                           <p className="text-sm text-gray-500 italic py-4 text-center">
                             No comments yet. Add feedback below.
@@ -1063,12 +1295,10 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
     }
   };
 
-  const isFullHeightView = pitchPath === 'builder' || pitchPath === 'greenlit' || viewMode === 'my-pitches';
-
   return (
-    <div className={`px-12 py-8 ${isFullHeightView ? 'h-screen overflow-hidden flex flex-col' : ''}`}>
+    <div className="px-12 py-8">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 mb-8 shrink-0">
+      <div className="flex items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
           {/* Back button */}
           {(viewMode === 'new' && pitchPath !== 'choice') && (
@@ -1085,10 +1315,17 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
           )}
 
           <div>
-            <h1 className="text-5xl font-bold text-white mb-2">Pitch</h1>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-5xl font-bold text-white">Pitch</h1>
+              {authUser?.role === 'admin' && viewMode === 'my-pitches' && (
+                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-purple-900/50 text-purple-300 border border-purple-700">
+                  Admin View: All Pitches
+                </span>
+              )}
+            </div>
             <p className="text-gray-400">
               {viewMode === 'my-pitches'
-                ? 'Review and manage submitted pitches'
+                ? authUser?.role === 'admin' ? 'Review and manage all submitted pitches' : 'Review and manage your submitted pitches'
                 : 'Submit a new research idea'}
             </p>
           </div>
@@ -1120,11 +1357,10 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
       </div>
 
       {/* Main Content */}
-      <div className={isFullHeightView ? 'flex-1 min-h-0 overflow-hidden flex flex-col' : ''}>
+      <div>
         <AnimatePresence mode="wait">
           <motion.div
             key={`${viewMode}-${pitchPath}`}
-            className={isFullHeightView ? 'h-full' : ''}
           >
             {renderContent()}
           </motion.div>

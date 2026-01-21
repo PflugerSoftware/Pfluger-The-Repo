@@ -27,6 +27,9 @@ export interface ExtractedPitch {
   scope: 'simple' | 'medium' | 'complex' | null;
   methodology: string | null;
   projectConnection: string | null;
+  projectName: string | null;
+  buildingOff: string | null;
+  partner: string | null;
   successMetrics: string | null;
   timeline: string | null;
   isComplete: boolean;
@@ -88,8 +91,11 @@ Based on what they want to DO, recommend a scope:
    - Explain briefly why this fits
 
 4. **Fill in details**
-   - Project connection (is this for a current project or thought leadership?)
-   - How they'll measure success
+   - Project connection: Is this for a **current project**, **prospected project** (future/potential project), or **thought leadership** (general knowledge building)?
+   - If project-related (current or prospected), ask for the **project name or number**
+   - **Building off prior research**: Is this building on or continuing from another R&B project? (e.g., "X25-RB01") (Optional)
+   - **Partners/Organizations**: Are there any external organizations or partners involved? (Optional)
+   - **Expected deliverable/impact**: What will this research PRODUCE? (Be specific: "An infographic", "A whitepaper", "Survey data analysis", etc.)
    - Rough timeline
 
 5. **Summarize the pitch**
@@ -123,12 +129,17 @@ Always respond naturally in conversation.
 When research idea is clear, add: [PITCH_UPDATE: idea="their research question here"]
 When scope is determined, add: [PITCH_UPDATE: scope="simple|medium|complex"]
 When methodology is chosen, add: [PITCH_UPDATE: methodology="the method"]
-When project connection is known, add: [PITCH_UPDATE: alignment="current-project|thought-leadership"]
+When project connection is known, add: [PITCH_UPDATE: alignment="current-project|prospected-project|thought-leadership"]
+When project name mentioned (if project-related), add: [PITCH_UPDATE: projectName="project name or number"]
+When building off prior research, add: [PITCH_UPDATE: buildingOff="X25-RB01" or other project ID]
+When partner/organization mentioned, add: [PITCH_UPDATE: partner="organization or partner name"]
+When deliverable/impact is clear, add: [PITCH_UPDATE: impact="what this will produce"]
 When timeline discussed, add: [PITCH_UPDATE: timeline="the timeline"]
 
 You can include multiple updates in one response, e.g.:
 [PITCH_UPDATE: scope="medium"]
 [PITCH_UPDATE: methodology="Survey/Post-Occupancy"]
+[PITCH_UPDATE: impact="Survey data analysis and recommendations report"]
 
 When you've gathered enough info, include a brief pitch summary like:
 
@@ -234,6 +245,18 @@ function parsePitchUpdates(response: string): Partial<ExtractedPitch> {
       case 'alignment':
         updates.projectConnection = value;
         break;
+      case 'projectName':
+        updates.projectName = value;
+        break;
+      case 'buildingOff':
+        updates.buildingOff = value;
+        break;
+      case 'partner':
+        updates.partner = value;
+        break;
+      case 'impact':
+        updates.successMetrics = value;
+        break;
       case 'timeline':
         updates.timeline = value;
         break;
@@ -244,6 +267,35 @@ function parsePitchUpdates(response: string): Partial<ExtractedPitch> {
   }
 
   return updates;
+}
+
+// Strip markdown formatting from text
+export function stripMarkdown(text: string): string {
+  return text
+    // Remove bold (**text** or __text__)
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    // Remove italic (*text* or _text_)
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/_(.+?)_/g, '$1')
+    // Remove headers (# or ##, etc)
+    .replace(/^#{1,6}\s+/gm, '')
+    // Remove bullet points (- or * at start of line)
+    .replace(/^[\s]*[-*]\s+/gm, '')
+    // Remove inline code (`text`)
+    .replace(/`([^`]+)`/g, '$1')
+    // Remove links but keep text [text](url)
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
+    // Remove blockquotes (>)
+    .replace(/^>\s+/gm, '')
+    // Remove horizontal rules (---, ***, ___)
+    .replace(/^[\s]*[-*_]{3,}[\s]*$/gm, '')
+    // Remove em dashes (—) and en dashes (–)
+    .replace(/—/g, ' ')
+    .replace(/–/g, ' ')
+    // Clean up multiple spaces
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 // Strip PITCH_UPDATE tags from response for display
@@ -259,6 +311,9 @@ function extractPitchData(messages: PitchMessage[]): ExtractedPitch {
     scope: null,
     methodology: null,
     projectConnection: null,
+    projectName: null,
+    buildingOff: null,
+    partner: null,
     successMetrics: null,
     timeline: null,
     isComplete: false

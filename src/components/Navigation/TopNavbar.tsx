@@ -139,8 +139,17 @@ const REPO_SECTION: NavSection = {
 };
 
 export function TopNavbar({ onNavigate, onLogoClick }: TopNavbarProps) {
-  const { logout, isAuthenticated } = useAuth();
+  const { logout, isAuthenticated, user } = useAuth();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  // Generate initials from user name
+  const getInitials = (name: string) => {
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
 
   const handleAuthClick = () => {
     if (isAuthenticated) {
@@ -152,7 +161,7 @@ export function TopNavbar({ onNavigate, onLogoClick }: TopNavbarProps) {
 
   const visibleSections = isAuthenticated
     ? [...NAV_SECTIONS.slice(0, 2), REPO_SECTION, ...NAV_SECTIONS.slice(2)]
-    : NAV_SECTIONS.filter(s => s.id !== 'pitch');
+    : NAV_SECTIONS.filter(s => s.id !== 'pitch' && s.id !== 'campus' && s.id !== 'explore');
 
   const isExpanded = hoveredId !== null;
   const activeSection = visibleSections.find(s => s.id === hoveredId);
@@ -222,13 +231,36 @@ export function TopNavbar({ onNavigate, onLogoClick }: TopNavbarProps) {
             ))}
           </div>
 
-          {/* Auth button */}
-          <button
-            onClick={handleAuthClick}
-            className="text-gray-400 hover:text-white transition-colors p-2"
-          >
-            {isAuthenticated ? <LogOut className="w-5 h-5" /> : <LogIn className="w-5 h-5" />}
-          </button>
+          {/* Auth section */}
+          {isAuthenticated && user ? (
+            <div className="flex items-center gap-3">
+              {/* Profile card */}
+              <div className="flex items-center gap-3 px-4 py-2 bg-gray-800/50 rounded-full border border-gray-700">
+                {/* Avatar */}
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold">
+                  {getInitials(user.name)}
+                </div>
+                {/* Name */}
+                <span className="text-sm text-white font-medium">{user.name}</span>
+              </div>
+              {/* Logout button */}
+              <button
+                onClick={handleAuthClick}
+                className="text-gray-400 hover:text-white transition-colors p-2"
+                title="Log out"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleAuthClick}
+              className="text-gray-400 hover:text-white transition-colors p-2"
+              title="Log in"
+            >
+              <LogIn className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         {/* Mega menu dropdown */}

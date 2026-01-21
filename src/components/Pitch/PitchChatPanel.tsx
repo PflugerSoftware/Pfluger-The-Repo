@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Sparkles } from 'lucide-react';
-import { sendPitchMessage, getInitialMessage, stripPitchTags, type PitchMessage, type ProjectContext, type ExtractedPitch } from '../../services/pitchAgent';
+import { sendPitchMessage, getInitialMessage, stripPitchTags, stripMarkdown, type PitchMessage, type ProjectContext, type ExtractedPitch } from '../../services/pitchAgent';
 import { useProjects } from '../../context/ProjectsContext';
 import { savePitchAiSession, type PitchChatMessage } from '../../services/pitchService';
 
@@ -97,7 +97,7 @@ export function PitchChatPanel({ pitchId, userId, initialMessages, onPitchUpdate
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: stripPitchTags(response.message)
+        content: stripMarkdown(stripPitchTags(response.message))
       };
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {

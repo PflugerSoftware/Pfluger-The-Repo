@@ -35,21 +35,24 @@ const USER_PROJECTS: ProjectSchedule[] = [
 
 interface ScheduleCardProps {
   proposedScope?: 'simple' | 'medium' | 'complex' | '';
+  hoursPerWeek?: number; // Dynamic hours from actual methodology
 }
 
+// Fallback hours if not provided
 const SCOPE_HOURS: Record<string, { weekly: number; duration: string }> = {
-  simple: { weekly: 5, duration: '4-6 weeks' },
-  medium: { weekly: 8, duration: '8-12 weeks' },
-  complex: { weekly: 10, duration: '12-16 weeks' }
+  simple: { weekly: 4, duration: '5-15 weeks' },
+  medium: { weekly: 4, duration: '15-30 weeks' },
+  complex: { weekly: 4, duration: '30-50 weeks' }
 };
 
-export function ScheduleCard({ proposedScope }: ScheduleCardProps) {
+export function ScheduleCard({ proposedScope, hoursPerWeek }: ScheduleCardProps) {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
   const currentMonth = new Date().getMonth(); // 0-indexed
 
   // Calculate total weekly hours from existing projects
   const totalProjectHours = USER_PROJECTS.reduce((sum, p) => sum + p.hoursPerWeek, 0);
-  const proposedHours = proposedScope ? SCOPE_HOURS[proposedScope]?.weekly || 0 : 0;
+  // Use provided hoursPerWeek, or fall back to scope-based estimate
+  const proposedHours = hoursPerWeek || (proposedScope ? SCOPE_HOURS[proposedScope]?.weekly || 0 : 0);
   const totalWithResearch = totalProjectHours + proposedHours;
 
   const getMonthIndex = (dateStr: string) => {

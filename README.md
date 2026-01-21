@@ -430,12 +430,38 @@ npm run build && wrangler pages deploy dist --project-name=pfluger-the-repo
 
 ## Authentication
 
-For internal team members, navigate to the Login page:
-- Email: `software@pflugerarchitects.com`
-- Password: `123456`
-- Dev User ID: `00000000-0000-0000-0000-000000000001` (hardcoded UUID for development)
+**Test Accounts:**
 
-*Note: Hardcoded for development. Production will use Pfluger SSO (Microsoft Entra ID) with proper user records.*
+| Username | Password | Role | Access |
+|----------|----------|------|--------|
+| `software@pflugerarchitects.com` | `123456Softwares!` | Admin | See all pitches, manage statuses, full dashboard |
+| `user@pflugerarchitects.com` | `123456Softwares!` | Researcher | See only own pitches, submit new pitches, claim greenlit |
+| *(logged out)* | - | Viewer | Public content only (Campus, Explore, Connect, About) |
+
+**Database Setup Required:**
+Both users must exist in the Supabase `users` table for authentication to work. Add them with:
+```sql
+-- Admin user
+INSERT INTO users (id, email, name, role, office) VALUES
+('00000000-0000-0000-0000-000000000001', 'software@pflugerarchitects.com', 'Pfluger Admin', 'admin', 'Austin');
+
+-- Researcher user
+INSERT INTO users (id, email, name, role, office) VALUES
+('00000000-0000-0000-0000-000000000002', 'user@pflugerarchitects.com', 'Pfluger Researcher', 'researcher', 'Austin');
+```
+
+**Current Implementation:**
+- Hardcoded credentials in `AuthContext.tsx`
+- localStorage-based session persistence
+- Two-tier permissions: Admin/Researcher (requires login) vs Viewer (public)
+- Viewer role = default logged-out state (no credentials needed)
+
+**Role Permissions:**
+- **Admin** - Full access to all pitches across all users, review dashboard, system management
+- **Researcher** - Submit and manage own pitches only, claim greenlit opportunities, view all projects
+- **Viewer** - Public read-only access to Campus, Explore, Connect, About (no login required)
+
+*Note: Designed for future migration to Azure SSO (Microsoft Entra ID). Architecture supports federated authentication with minimal refactoring.*
 
 ## Project Structure
 
@@ -624,11 +650,14 @@ Each category has a dedicated color:
 
 ### Critical Priority
 
-- [ ] **SSO Authentication** - Replace hardcoded credentials with Pfluger SSO
-  - Current: Hardcoded `apps@pflugerarchitects.com` / `123456` in `AuthContext.tsx`
-  - Integrate Microsoft Entra ID (Azure AD) for Pfluger accounts
-  - Add role-based permissions (Admin, Researcher, Viewer)
-  - Session management and token refresh
+- [ ] **Azure SSO Migration** - Replace hardcoded credentials with Microsoft Entra ID
+  - Current: Hardcoded `software@pflugerarchitects.com` / `123456Softwares!` in `AuthContext.tsx`
+  - Architecture prepared for minimal refactoring to Azure AD
+  - Integrate `@azure/msal-react` for federated authentication
+  - Map Azure AD users to Supabase `users` table
+  - Three-role system: Admin, Researcher, Viewer
+  - Token refresh and session management
+  - Awaiting Azure AD tenant configuration
 
 - [x] **Database Schema (Supabase)** - Schema complete, project blocks migrated
   - 17 tables created with proper foreign keys and constraints
@@ -651,11 +680,10 @@ Each category has a dedicated color:
   - [ ] Connect collaboration form to `collaboration_requests` table
   - [x] Chat persistence wired to `repo_ai_sessions` table (per user_id UUID)
 
-- [ ] **Form Backend & Notifications**
-  - Collaborate form: Connect to Supabase + Resend for email notifications
-  - Pitch submission: Store in Supabase, notify GreenLight team
-  - Email templates for submission confirmations
-  - Slack/Teams webhook for internal alerts
+- [ ] **Form Backend**
+  - Collaborate form: Connect to `collaboration_requests` table in Supabase
+  - Admin pitch dashboard: View all pitches and their statuses in one place
+  - Status management: Admin can move pitches between pending/revise/greenlit
 
 ### High Priority
 
@@ -705,7 +733,7 @@ Each category has a dedicated color:
   - [x] All pitch data stored in Supabase `pitches` table
   - [x] Ezra chat history persisted to `pitch_ai_sessions` table
   - [x] Review comments persisted to `pitch_comments` table
-  - [ ] Email notifications for status changes (pending)
+  - [ ] Admin dashboard to view all pitches and statuses (pending)
 
 - [ ] **Analytics Dashboard**
   - Real metrics instead of placeholder stats
@@ -779,18 +807,18 @@ Database hosted on Supabase (PostgreSQL). Connection via Session Pooler for IPv4
 
 ### Roles
 
-| Role | Permissions |
-|------|-------------|
-| `admin` | Full access |
-| `researcher` | CRUD on own projects, pitches |
-| `contributor` | Create pitches, view projects |
-| `viewer` | Read-only access |
+| Role | Permissions | Login Required |
+|------|-------------|----------------|
+| `admin` | Full access to all pitches, review dashboard, system management | Yes |
+| `researcher` | Submit and manage own pitches, claim greenlit opportunities, view all projects | Yes |
+| `viewer` | Read-only access to public content | No |
 
 ### Technical Debt
 
 | File | Issue | Status |
 |------|-------|--------|
-| `AuthContext.tsx` | Hardcoded credentials (email/password) | Not fixed - awaiting SSO |
+| `AuthContext.tsx` | Hardcoded credentials (email/password) | Not fixed - awaiting Azure SSO |
+| `users` table | Missing researcher test user | **ACTION REQUIRED** - Run SQL insert for `user@pflugerarchitects.com` |
 | `Collaborate.tsx` | Simulated form submission | Not fixed |
 | `Schedule.tsx` | Mock hours data | Not fixed |
 | `loadProjects.ts` | Unsplash placeholders | Not fixed |
@@ -798,6 +826,7 @@ Database hosted on Supabase (PostgreSQL). Connection via Session Pooler for IPv4
 | ~~`PitchSubmission.tsx`~~ | ~~Hardcoded GreenLit topics~~ | ✅ FIXED - In database |
 | ~~`PitchSubmission.tsx`~~ | ~~Mock DEFAULT_PITCHES data~~ | ✅ FIXED - Loads from database |
 | ~~`PitchSubmission.tsx`~~ | ~~"submittedBy" hardcoded~~ | ✅ FIXED - Uses user context |
+| ~~`PitchSubmission.tsx`~~ | ~~Single user view only~~ | ✅ FIXED - Admin sees all pitches |
 
 ## License
 
