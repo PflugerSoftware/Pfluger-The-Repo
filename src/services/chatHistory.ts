@@ -13,6 +13,7 @@ export interface ChatMessage {
 
 export interface ChatSession {
   id: string;
+  userId: string;
   title: string;
   messages: ChatMessage[];
   createdAt: Date;
@@ -22,7 +23,7 @@ export interface ChatSession {
 // Database row type
 interface ChatSessionRow {
   id: string;
-  username: string;
+  user_id: string;
   title: string;
   messages: ChatMessage[];
   created_at: string;
@@ -33,6 +34,7 @@ interface ChatSessionRow {
 function rowToSession(row: ChatSessionRow): ChatSession {
   return {
     id: row.id,
+    userId: row.user_id,
     title: row.title,
     messages: row.messages.map(m => ({
       ...m,
@@ -46,11 +48,11 @@ function rowToSession(row: ChatSessionRow): ChatSession {
 /**
  * Load all chat sessions for a user
  */
-export async function loadChatSessions(username: string): Promise<ChatSession[]> {
+export async function loadChatSessions(userId: string): Promise<ChatSession[]> {
   const { data, error } = await supabase
-    .from('chat_sessions')
+    .from('repo_ai_sessions')
     .select('*')
-    .eq('username', username)
+    .eq('user_id', userId)
     .order('updated_at', { ascending: false });
 
   if (error) {
@@ -65,18 +67,16 @@ export async function loadChatSessions(username: string): Promise<ChatSession[]>
  * Save a new chat session
  */
 export async function createChatSession(
-  username: string,
-  session: ChatSession
+  userId: string,
+  session: Omit<ChatSession, 'userId'>
 ): Promise<ChatSession | null> {
   const { data, error } = await supabase
-    .from('chat_sessions')
+    .from('repo_ai_sessions')
     .insert({
       id: session.id,
-      username,
+      user_id: userId,
       title: session.title,
-      messages: session.messages,
-      created_at: session.createdAt.toISOString(),
-      updated_at: session.updatedAt.toISOString()
+      messages: session.messages
     })
     .select()
     .single();
@@ -98,8 +98,7 @@ export async function updateChatSession(
   title?: string
 ): Promise<boolean> {
   const updates: Record<string, unknown> = {
-    messages,
-    updated_at: new Date().toISOString()
+    messages
   };
 
   if (title) {
@@ -107,7 +106,7 @@ export async function updateChatSession(
   }
 
   const { error } = await supabase
-    .from('chat_sessions')
+    .from('repo_ai_sessions')
     .update(updates)
     .eq('id', sessionId);
 
@@ -124,7 +123,7 @@ export async function updateChatSession(
  */
 export async function deleteChatSession(sessionId: string): Promise<boolean> {
   const { error } = await supabase
-    .from('chat_sessions')
+    .from('repo_ai_sessions')
     .delete()
     .eq('id', sessionId);
 

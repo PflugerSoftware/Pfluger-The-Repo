@@ -2,50 +2,71 @@
 
 **Repository** is Pfluger Architects' Research & Benchmarking platform. It serves as both a public showcase of research work and an internal management tool for the R&B team.
 
-## Handoff Notes (Jan 19, 2026)
+## Handoff Notes (Jan 20, 2026)
 
 **Latest Deploy:** https://pfluger-the-repo-67g.pages.dev
 
 **What we built today:**
 
-### Pitch System Overhaul
-- **AI Pitch Assistant (Ezra)** - Conversational agent that helps users develop research pitches
-  - Guides users from idea → scope → methodology → complete pitch
-  - References existing research projects to build on prior work or find gaps
-  - Uses `[PITCH_UPDATE: key="value"]` tags to lock in decisions and update UI
-  - Progress sidebar shows pitch development steps in real-time
+### Pitch System - Full Database Integration
 
-- **Pitch Review Dashboard** - Full reviewer interface for managing pitches
-  - Left panel: Pitch list with status indicators
-  - Right panel: Editable pitch details + comment thread
-  - Combined scope + methodology dropdown (linked together)
-  - Auto-calculated timeline based on 4 hours/week
-  - Status controls: Pending → Revise → Green Lit
-  - Inline commenting system
+**Database Schema:**
+- Created `pitches` table - All pitch submissions with P-YYYY-XXX ID format
+- Created `pitch_ai_sessions` table - Stores Ezra chat history per pitch
+- Created `pitch_comments` table - Human review thread with user joins
+- Renamed `chat_sessions` → `repo_ai_sessions` - TheRepo RAG chats now use user_id (UUID)
+- Updated `users` table - Added Dallas office, removed auth FK for dev phase
 
-- **Research Methods (Scope + Methodology linked):**
-  | Scope | Methodology | Hours | Timeline |
-  |-------|-------------|-------|----------|
-  | Simple | Infographic Creation | 20-60 | 5-15 weeks |
-  | Simple | Expert Interview | 20-60 | 5-15 weeks |
-  | Simple | Literature Review | 20-60 | 5-15 weeks |
-  | Medium | Survey/Post-Occupancy | 60-120 | 15-30 weeks |
-  | Medium | Annotated Bibliography | 60-120 | 15-30 weeks |
-  | Complex | Case Study Analysis | 120-200 | 30-50 weeks |
-  | Complex | Experimental Design | 120-200 | 30-50 weeks |
-  | Complex | Long-form Whitepaper | 120-200 | 30-50 weeks |
+**GreenLit Pitches (New Concept):**
+- GreenLit pitches are regular pitches with `status = 'greenlit'` and `user_id = null`
+- Users browse available greenlit pitches and "claim" them (assigns their user_id)
+- No separate greenlit_topics table - everything unified under pitches table
+- 5 pre-approved pitches seeded: P-2026-001 through P-2026-005
 
-### Authentication & Chat
-- **Username-based login** - Changed from email to username (`software` / `123456Softwares!`)
-- **Chat history persistence** - Conversations saved to Supabase `chat_sessions` table per user
+**Services Created:**
+- `pitchService.ts` - Full CRUD for pitches, AI sessions, and comments
+  - `getPitches()` - Filter by user/status/availability
+  - `createPitch()` - Create new pitch with auto-generated ID
+  - `updatePitch()` - Update any pitch field
+  - `claimPitch()` - Assign greenlit pitch to user
+  - `generatePitchId()` - Auto-increment P-YYYY-XXX format
+  - `savePitchAiSession()` - Persist Ezra chat to database
+  - `getPitchComments()` / `addPitchComment()` - Review thread management
+
+**UI Updates:**
+- PitchSubmission.tsx - Full database integration
+  - Loads pitches from Supabase on mount
+  - GreenLit flow: browse → claim → appears in My Pitches
+  - Custom flow: chat with Ezra → submit as pending
+  - All edits auto-save to database in real-time
+  - Comments persist with user attribution
+- PitchChatPanel.tsx - Auto-saves Ezra conversations to `pitch_ai_sessions` table
+
+**Data Flow:**
+1. User picks GreenLit pitch → Claims it → Assigned to their user_id
+2. User chats with Ezra → Pitch data extracted → Submitted as pending
+3. Reviewers edit pitch fields → Auto-saves to database
+4. Reviewers add comments → Saved to `pitch_comments` with user join
+
+**Dev User:** `software@pflugerarchitects.com` (UUID: `00000000-0000-0000-0000-000000000001`)
 
 ### Files Changed
-- `src/views/Pitch/PitchSubmission.tsx` - Complete rewrite with review dashboard
-- `src/components/Pitch/PitchChatPanel.tsx` - Wired to pitch agent with UI updates
-- `src/services/pitchAgent.ts` - New AI agent service for pitch development
-- `src/services/chatHistory.ts` - New service for chat persistence
-- `src/components/System/AuthContext.tsx` - Username-based auth
-- `src/views/Login.tsx` - New login view
+- `src/views/Pitch/PitchSubmission.tsx` - Complete rewrite with database persistence
+- `src/components/Pitch/PitchChatPanel.tsx` - Added AI session persistence
+- `src/services/pitchService.ts` - NEW: Full pitch CRUD service
+- `src/services/chatHistory.ts` - Updated for user_id (UUID) and repo_ai_sessions table
+- `src/views/Repo/TheRepo.tsx` - Fixed ChatSession type for userId field
+
+---
+
+## Previous Notes (Jan 19, 2026)
+
+**Pitch System UI:**
+- AI Pitch Assistant (Ezra) with conversational flow
+- Pitch Review Dashboard with editable fields
+- Combined scope + methodology dropdown
+- Status controls: Pending → Revise → Green Lit
+- Inline commenting system
 
 ---
 
@@ -410,10 +431,11 @@ npm run build && wrangler pages deploy dist --project-name=pfluger-the-repo
 ## Authentication
 
 For internal team members, navigate to the Login page:
-- Username: `software`
-- Password: `123456Softwares!`
+- Email: `software@pflugerarchitects.com`
+- Password: `123456`
+- Dev User ID: `00000000-0000-0000-0000-000000000001` (hardcoded UUID for development)
 
-*Note: Hardcoded for development. Production will use Pfluger SSO (Microsoft Entra ID).*
+*Note: Hardcoded for development. Production will use Pfluger SSO (Microsoft Entra ID) with proper user records.*
 
 ## Project Structure
 
@@ -450,7 +472,8 @@ src/
 ├── services/
 │   ├── rag.ts                      # RAG system (search, intent, synthesis)
 │   ├── pitchAgent.ts               # AI pitch assistant (Ezra)
-│   ├── chatHistory.ts              # Chat session persistence
+│   ├── pitchService.ts             # Pitch CRUD operations
+│   ├── chatHistory.ts              # Chat session persistence (repo_ai_sessions)
 │   └── projects.ts                 # Project config fetcher (database)
 ├── context/
 │   └── ProjectsContext.tsx         # Global project state
@@ -619,10 +642,14 @@ Each category has a dedicated color:
   - RAG system searches `project_blocks` for research queries
   - Images served from Supabase Storage
 
-- [ ] **Remaining Frontend-Database Integration**
-  - Connect pitch submission to `pitches` table
-  - Connect collaboration form to `collaboration_requests` table
-  - [x] Chat persistence wired to `chat_sessions` table (per username)
+- [x] **Pitch System Database Integration** - COMPLETED Jan 20, 2026
+  - [x] Pitch submissions connected to `pitches` table
+  - [x] Ezra chat history saved to `pitch_ai_sessions` table
+  - [x] Review comments saved to `pitch_comments` table
+  - [x] GreenLit pitches unified under pitches table
+  - [x] Real-time auto-save for all pitch edits
+  - [ ] Connect collaboration form to `collaboration_requests` table
+  - [x] Chat persistence wired to `repo_ai_sessions` table (per user_id UUID)
 
 - [ ] **Form Backend & Notifications**
   - Collaborate form: Connect to Supabase + Resend for email notifications
@@ -670,14 +697,15 @@ Each category has a dedicated color:
   - Integration with project management tools
   - Burndown charts and capacity planning
 
-- [ ] **Pitch System Enhancements**
+- [x] **Pitch System Enhancements** - COMPLETED Jan 19-20, 2026
   - [x] AI pitch assistant (Ezra) for guided pitch development
   - [x] Pitch review dashboard with editable fields
   - [x] Combined scope + methodology with auto-calculated timeline
-  - [ ] Replace hardcoded GreenLit topics with database
-  - [ ] Replace DEFAULT_PITCHES mock data with database
-  - [ ] Connect pitch submissions to Supabase `pitches` table
-  - [ ] Email notifications for status changes
+  - [x] GreenLit pitches in database (5 pre-seeded)
+  - [x] All pitch data stored in Supabase `pitches` table
+  - [x] Ezra chat history persisted to `pitch_ai_sessions` table
+  - [x] Review comments persisted to `pitch_comments` table
+  - [ ] Email notifications for status changes (pending)
 
 - [ ] **Analytics Dashboard**
   - Real metrics instead of placeholder stats
@@ -710,14 +738,13 @@ Database hosted on Supabase (PostgreSQL). Connection via Session Pooler for IPv4
 
 | Table | Purpose |
 |-------|---------|
-| `users` | User accounts (linked to Supabase Auth) |
+| `users` | User accounts with role/office info |
 | `projects` | Research projects with full metadata |
 | `research_projects` | Legacy map data (being consolidated) |
-| `pitches` | Research pitch submissions |
-| `pitch_comments` | Comments on pitches |
-| `greenlit_topics` | Pre-approved research ideas |
-| `chat_sessions` | AI chat session metadata |
-| `chat_messages` | Chat message history |
+| `pitches` | Research pitch submissions (P-YYYY-XXX format) |
+| `pitch_ai_sessions` | Ezra chat history per pitch |
+| `pitch_comments` | Pitch review comments with user joins |
+| `repo_ai_sessions` | TheRepo RAG chat sessions (renamed from chat_sessions) |
 | `contacts` | Partner/contact database |
 | `contact_projects` | Many-to-many contacts/projects |
 | `collaboration_requests` | Public contact form submissions |
@@ -730,10 +757,11 @@ Database hosted on Supabase (PostgreSQL). Connection via Session Pooler for IPv4
 
 ### Key Relationships
 
-- `users.id` references `auth.users(id)` (Supabase Auth)
-- `pitches.converted_to_project_id` references `projects(id)`
-- `chat_messages.session_id` references `chat_sessions(id)`
-- Normalized many-to-many tables for researchers, partners, sources
+- `pitches.user_id` → `users.id` (pitch owner)
+- `pitch_ai_sessions.pitch_id` → `pitches.id` (Ezra chat for pitch)
+- `pitch_comments.pitch_id` → `pitches.id` (review thread)
+- `repo_ai_sessions.user_id` → `users.id` (TheRepo chat owner)
+- `projects.id` ← multiple many-to-many tables
 
 ### project_blocks Schema
 
@@ -760,16 +788,16 @@ Database hosted on Supabase (PostgreSQL). Connection via Session Pooler for IPv4
 
 ### Technical Debt
 
-| File | Issue | Line(s) |
-|------|-------|---------|
-| `AuthContext.tsx` | Hardcoded credentials (username/password) | ~17-19, 40 |
-| `Collaborate.tsx` | Simulated form submission | 16-31 |
-| `PitchSubmission.tsx` | Hardcoded GreenLit topics | 79-117 |
-| `PitchSubmission.tsx` | Mock DEFAULT_PITCHES data | 120-172 |
-| `PitchSubmission.tsx` | "submittedBy" hardcoded to "You" | 297 |
-| `Schedule.tsx` | Mock hours data | 70-84 |
-| `loadProjects.ts` | Unsplash placeholders | 60-61, 81-91 |
-| `ImageCarousel.tsx` | Unsplash hero images | 6, 12, 18, 24 |
+| File | Issue | Status |
+|------|-------|--------|
+| `AuthContext.tsx` | Hardcoded credentials (email/password) | Not fixed - awaiting SSO |
+| `Collaborate.tsx` | Simulated form submission | Not fixed |
+| `Schedule.tsx` | Mock hours data | Not fixed |
+| `loadProjects.ts` | Unsplash placeholders | Not fixed |
+| `ImageCarousel.tsx` | Unsplash hero images | Not fixed |
+| ~~`PitchSubmission.tsx`~~ | ~~Hardcoded GreenLit topics~~ | ✅ FIXED - In database |
+| ~~`PitchSubmission.tsx`~~ | ~~Mock DEFAULT_PITCHES data~~ | ✅ FIXED - Loads from database |
+| ~~`PitchSubmission.tsx`~~ | ~~"submittedBy" hardcoded~~ | ✅ FIXED - Uses user context |
 
 ## License
 

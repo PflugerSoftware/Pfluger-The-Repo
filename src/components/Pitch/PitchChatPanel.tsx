@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Send, Sparkles } from 'lucide-react';
 import { sendPitchMessage, getInitialMessage, stripPitchTags, type PitchMessage, type ProjectContext, type ExtractedPitch } from '../../services/pitchAgent';
 import { useProjects } from '../../context/ProjectsContext';
+import { savePitchAiSession, type PitchChatMessage } from '../../services/pitchService';
 
 interface ChatMessage {
   id: string;
@@ -11,13 +12,16 @@ interface ChatMessage {
 }
 
 interface PitchChatPanelProps {
+  pitchId?: string;
+  userId?: string;
+  initialMessages?: ChatMessage[];
   onPitchUpdate?: (pitch: ExtractedPitch) => void;
 }
 
-export function PitchChatPanel({ onPitchUpdate }: PitchChatPanelProps) {
+export function PitchChatPanel({ pitchId, userId, initialMessages, onPitchUpdate }: PitchChatPanelProps) {
   const { projects } = useProjects();
   const [inputValue, setInputValue] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages || []);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -32,9 +36,9 @@ export function PitchChatPanel({ onPitchUpdate }: PitchChatPanelProps) {
     description: p.description
   }));
 
-  // Load initial greeting
+  // Load initial greeting if no initial messages
   useEffect(() => {
-    if (!isInitialized) {
+    if (!isInitialized && (!initialMessages || initialMessages.length === 0)) {
       setIsInitialized(true);
       getInitialMessage().then(greeting => {
         setMessages([{
@@ -44,11 +48,24 @@ export function PitchChatPanel({ onPitchUpdate }: PitchChatPanelProps) {
         }]);
       });
     }
-  }, [isInitialized]);
+  }, [isInitialized, initialMessages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Save messages to database when pitch is linked
+  useEffect(() => {
+    if (pitchId && userId && messages.length > 0) {
+      const dbMessages: PitchChatMessage[] = messages.map(m => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        timestamp: new Date()
+      }));
+      savePitchAiSession(pitchId, userId, dbMessages);
+    }
+  }, [messages, pitchId, userId]);
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;

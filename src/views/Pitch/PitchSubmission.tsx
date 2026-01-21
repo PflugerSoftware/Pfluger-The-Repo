@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle,
@@ -13,40 +13,30 @@ import {
   MessageSquare,
   User,
   Calendar,
-  Target
+  Target,
+  Loader2
 } from 'lucide-react';
-import { PitchCard, type PitchData } from '../../components/Pitch/PitchCard';
+import { type PitchData } from '../../components/Pitch/PitchCard';
 import { PitchChatPanel } from '../../components/Pitch/PitchChatPanel';
 import { ScheduleCard } from '../../components/Pitch/ScheduleCard';
 import type { ExtractedPitch } from '../../services/pitchAgent';
+import {
+  getPitches,
+  createPitch,
+  updatePitch,
+  claimPitch,
+  generatePitchId,
+  getPitchComments,
+  addPitchComment,
+  getUserByEmail,
+  type Pitch,
+  type PitchComment,
+  type PitchStatus,
+  type User as DbUser
+} from '../../services/pitchService';
 
 // Types
-type PitchStatus = 'pending' | 'revise' | 'greenlit';
 type PitchPath = 'choice' | 'greenlit' | 'builder';
-
-interface ReviewComment {
-  author: string;
-  date: string;
-  message: string;
-  isReviewer: boolean;
-}
-
-interface SubmittedPitch {
-  id: string;
-  title: string;
-  category: string;
-  submittedDate: string;
-  status: PitchStatus;
-  comments: ReviewComment[];
-  // Full pitch details
-  researchIdea: string;
-  scope: 'simple' | 'medium' | 'complex' | '';
-  methodology: string;
-  alignment: 'current-project' | 'thought-leadership' | '';
-  timeline: string;
-  impact: string;
-  submittedBy: string;
-}
 
 // Combined scope + methodology options (4 hours/week = timeline calculation)
 const RESEARCH_METHODS = [
@@ -76,112 +66,8 @@ const SCOPE_LABELS: Record<string, { label: string; color: string }> = {
   complex: { label: 'Complex', color: 'text-red-400' },
 };
 
-interface GreenLitTopic {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  suggestedScope: 'simple' | 'medium' | 'complex';
-  suggestedMethods: string[];
-}
-
-// GreenLit pre-approved topics
-const GREENLIT_TOPICS: GreenLitTopic[] = [
-  {
-    id: 'GL-001',
-    title: 'Post-Occupancy Evaluation Framework',
-    description: 'Develop a standardized POE survey template for K-12 educational facilities that measures student comfort, teacher satisfaction, and learning environment effectiveness.',
-    category: 'Campus Life',
-    suggestedScope: 'medium',
-    suggestedMethods: ['Survey/Post-Occupancy Design', 'Literature Review']
-  },
-  {
-    id: 'GL-002',
-    title: 'Biophilic Design Impact Study',
-    description: 'Research the measurable effects of biophilic design elements (natural light, plants, natural materials) on student focus and well-being in classroom settings.',
-    category: 'Psychology',
-    suggestedScope: 'complex',
-    suggestedMethods: ['Case Study Analysis', 'Survey/Post-Occupancy Design']
-  },
-  {
-    id: 'GL-003',
-    title: 'Flexible Learning Space Configurations',
-    description: 'Document and analyze different furniture configurations and their impact on collaborative learning in elementary school classrooms.',
-    category: 'Immersive Learning',
-    suggestedScope: 'simple',
-    suggestedMethods: ['Infographic Creation', 'Literature Review']
-  },
-  {
-    id: 'GL-004',
-    title: 'Mass Timber in Educational Buildings',
-    description: 'Create a comprehensive resource on mass timber applications, benefits, and case studies specific to Texas educational facilities.',
-    category: 'Sustainability',
-    suggestedScope: 'medium',
-    suggestedMethods: ['Annotated Bibliography/Resources', 'Case Study Analysis']
-  },
-  {
-    id: 'GL-005',
-    title: 'Acoustic Performance Standards',
-    description: 'Research and document best practices for acoustic design in music education spaces and fine arts facilities.',
-    category: 'Fine Arts',
-    suggestedScope: 'medium',
-    suggestedMethods: ['Literature Review', 'Expert Interview']
-  }
-];
-
-// Default pitches data
-const DEFAULT_PITCHES: SubmittedPitch[] = [
-  {
-    id: 'P-2026-001',
-    title: 'Biophilic Design Impact on Student Focus',
-    category: 'Psychology',
-    submittedDate: '2026-01-05',
-    status: 'greenlit',
-    comments: [
-      { author: 'GreenLight Team', date: '2026-01-08', message: 'Great research question! We love the focus on measurable outcomes. Green Lit!', isReviewer: true }
-    ],
-    researchIdea: 'How do biophilic design elements (natural light, plants, natural materials) measurably impact student focus and attention span in K-12 classroom settings?',
-    scope: 'complex',
-    methodology: 'Case Study Analysis',
-    alignment: 'thought-leadership',
-    timeline: 'Q1-Q2 2026',
-    impact: 'Design guidelines for incorporating biophilic elements in future school projects',
-    submittedBy: 'Katherine Wiley'
-  },
-  {
-    id: 'P-2026-002',
-    title: 'Mass Timber Acoustic Performance',
-    category: 'Sustainability',
-    submittedDate: '2026-01-10',
-    status: 'revise',
-    comments: [
-      { author: 'GreenLight Team', date: '2026-01-13', message: 'Interesting topic! Can you clarify the measurement methodology? How will you collect acoustic data?', isReviewer: true },
-      { author: 'You', date: '2026-01-15', message: 'Updated methodology to include SPL measurements at 5 locations per space, pre and post occupancy.', isReviewer: false }
-    ],
-    researchIdea: 'What is the acoustic performance of mass timber construction compared to traditional steel/concrete in educational settings?',
-    scope: 'medium',
-    methodology: 'Survey/Post-Occupancy Design',
-    alignment: 'current-project',
-    timeline: 'Q1 2026',
-    impact: 'Acoustic design recommendations for mass timber school projects',
-    submittedBy: 'Nilen Varade'
-  },
-  {
-    id: 'P-2026-003',
-    title: 'Wayfinding in K-12 Campuses',
-    category: 'Campus Life',
-    submittedDate: '2026-01-17',
-    status: 'pending',
-    comments: [],
-    researchIdea: 'How can wayfinding design in K-12 campuses be improved to reduce student confusion and increase independence, especially for younger students?',
-    scope: 'simple',
-    methodology: 'Literature Review',
-    alignment: 'thought-leadership',
-    timeline: 'Q1 2026',
-    impact: 'Wayfinding design checklist for elementary schools',
-    submittedBy: 'Jonathan Bryer'
-  }
-];
+// Dev user email (temporary until real auth)
+const DEV_USER_EMAIL = 'software@pflugerarchitects.com';
 
 const STATUS_CONFIG = {
   pending: { label: 'Pending Review', color: 'text-yellow-400', bg: 'bg-yellow-900/30', border: 'border-yellow-800', icon: Clock },
@@ -199,19 +85,26 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
   const [pitchPath, setPitchPath] = useState<PitchPath>('choice');
   const [expandedPitch, setExpandedPitch] = useState<string | null>(null);
 
-  // GreenLit state
-  const [selectedGreenLitTopic, setSelectedGreenLitTopic] = useState<GreenLitTopic | null>(null);
+  // Loading state
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Submitted pitches state
-  const [submittedPitches, setSubmittedPitches] = useState<SubmittedPitch[]>(DEFAULT_PITCHES);
+  // Current user
+  const [currentUser, setCurrentUser] = useState<DbUser | null>(null);
+
+  // Pitches from database
+  const [myPitches, setMyPitches] = useState<Pitch[]>([]);
+  const [availableGreenlit, setAvailableGreenlit] = useState<Pitch[]>([]);
+  const [selectedGreenlitPitch, setSelectedGreenlitPitch] = useState<Pitch | null>(null);
+
+  // Comments for expanded pitch
+  const [pitchComments, setPitchComments] = useState<PitchComment[]>([]);
+  const [commentInput, setCommentInput] = useState('');
 
   // Track if pitch is ready for final review
   const [isPitchComplete, setIsPitchComplete] = useState(false);
 
-  // Comment input for review
-  const [commentInput, setCommentInput] = useState('');
-
-  // Pitch data (shared between GreenLit and Custom flows)
+  // Pitch data (for custom flow with Ezra)
   const [pitchData, setPitchData] = useState<PitchData>({
     researchIdea: '',
     alignment: '',
@@ -223,14 +116,49 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
     partners: ''
   });
 
-  // Handlers
-  const handleUpdateField = (field: keyof PitchData, value: string) => {
-    setPitchData(prev => ({ ...prev, [field]: value }));
-  };
+  // Load data on mount
+  useEffect(() => {
+    async function loadData() {
+      setIsLoading(true);
+      try {
+        // Get current user
+        const user = await getUserByEmail(DEV_USER_EMAIL);
+        setCurrentUser(user);
+
+        // Load my pitches (assigned to me)
+        if (user) {
+          const mine = await getPitches({ userId: user.id });
+          setMyPitches(mine);
+        }
+
+        // Load available greenlit pitches (unclaimed)
+        const available = await getPitches({ status: 'greenlit', availableOnly: true });
+        setAvailableGreenlit(available);
+      } catch (err) {
+        console.error('Error loading pitch data:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  // Load comments when expanded pitch changes
+  useEffect(() => {
+    async function loadComments() {
+      if (expandedPitch) {
+        const comments = await getPitchComments(expandedPitch);
+        setPitchComments(comments);
+      } else {
+        setPitchComments([]);
+      }
+    }
+    loadComments();
+  }, [expandedPitch]);
 
   const handleStartCustom = () => {
     setPitchPath('builder');
-    setSelectedGreenLitTopic(null);
+    setSelectedGreenlitPitch(null);
     setIsPitchComplete(false);
     setPitchData({
       researchIdea: '',
@@ -246,90 +174,102 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
 
   const handleStartGreenLit = () => {
     setPitchPath('greenlit');
-    setSelectedGreenLitTopic(null);
+    setSelectedGreenlitPitch(null);
     setIsPitchComplete(false);
-    setPitchData({
-      researchIdea: '',
-      alignment: '',
-      methodology: '',
-      scopeTier: '',
-      impact: '',
-      resources: '',
-      timeline: '',
-      partners: ''
-    });
   };
 
-  const handleSelectGreenLitTopic = (topic: GreenLitTopic) => {
-    setSelectedGreenLitTopic(topic);
-    // Pre-populate pitch data from the GreenLit topic
-    setPitchData({
-      researchIdea: topic.description,
-      alignment: 'thought-leadership',
-      methodology: topic.suggestedMethods[0] || '',
-      scopeTier: topic.suggestedScope,
-      impact: '',
-      resources: '',
-      timeline: '',
-      partners: ''
-    });
+  const handleSelectGreenlitPitch = (pitch: Pitch) => {
+    setSelectedGreenlitPitch(pitch);
+  };
+
+  const handleClaimGreenlit = async () => {
+    if (!selectedGreenlitPitch || !currentUser) return;
+
+    setIsSubmitting(true);
+    try {
+      // Claim the pitch (assign user_id)
+      const success = await claimPitch(selectedGreenlitPitch.id, currentUser.id);
+      if (success) {
+        // Move from available to my pitches
+        setAvailableGreenlit(prev => prev.filter(p => p.id !== selectedGreenlitPitch.id));
+        setMyPitches(prev => [{ ...selectedGreenlitPitch, userId: currentUser.id }, ...prev]);
+
+        // Reset and go to My Pitches
+        setViewMode('my-pitches');
+        setPitchPath('choice');
+        setSelectedGreenlitPitch(null);
+        setExpandedPitch(selectedGreenlitPitch.id);
+      }
+    } catch (err) {
+      console.error('Error claiming pitch:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleBack = () => {
     if (pitchPath === 'builder' || pitchPath === 'greenlit') {
       setPitchPath('choice');
-      setSelectedGreenLitTopic(null);
+      setSelectedGreenlitPitch(null);
     } else if (pitchPath === 'choice') {
       setViewMode('my-pitches');
     }
   };
 
-  const handleSubmit = () => {
-    // Generate a new pitch ID
-    const pitchCount = submittedPitches.length + 1;
-    const newId = `P-2026-${String(pitchCount).padStart(3, '0')}`;
+  const handleSubmit = async () => {
+    if (!currentUser) return;
 
-    // Extract a title from the research idea (first sentence or first 50 chars)
-    const titleMatch = pitchData.researchIdea.match(/^[^.!?]+/);
-    const title = titleMatch
-      ? titleMatch[0].slice(0, 60) + (titleMatch[0].length > 60 ? '...' : '')
-      : pitchData.researchIdea.slice(0, 60) + '...';
+    setIsSubmitting(true);
+    try {
+      // Generate a new pitch ID
+      const newId = await generatePitchId();
 
-    // Create the new pitch with full data
-    const newPitch: SubmittedPitch = {
-      id: newId,
-      title: title,
-      category: pitchData.alignment === 'current-project' ? 'Project Research' : 'Thought Leadership',
-      submittedDate: new Date().toISOString().split('T')[0],
-      status: 'pending',
-      comments: [],
-      researchIdea: pitchData.researchIdea,
-      scope: pitchData.scopeTier as 'simple' | 'medium' | 'complex' | '',
-      methodology: pitchData.methodology,
-      alignment: pitchData.alignment,
-      timeline: pitchData.timeline,
-      impact: pitchData.impact,
-      submittedBy: 'You' // TODO: Get from auth context
-    };
+      // Extract a title from the research idea
+      const titleMatch = pitchData.researchIdea.match(/^[^.!?]+/);
+      const title = titleMatch
+        ? titleMatch[0].slice(0, 60) + (titleMatch[0].length > 60 ? '...' : '')
+        : pitchData.researchIdea.slice(0, 60) + '...';
 
-    // Add to submitted pitches
-    setSubmittedPitches(prev => [newPitch, ...prev]);
+      // Create the pitch in database
+      const newPitch = await createPitch({
+        id: newId,
+        userId: currentUser.id,
+        title,
+        researchIdea: pitchData.researchIdea,
+        status: 'pending',
+        alignment: pitchData.alignment || undefined,
+        methodology: pitchData.methodology || undefined,
+        scopeTier: pitchData.scopeTier || undefined,
+        impact: pitchData.impact || undefined,
+        timeline: pitchData.timeline || undefined
+      });
 
-    // Reset and navigate to My Pitches
-    setViewMode('my-pitches');
-    setPitchPath('choice');
-    setSelectedGreenLitTopic(null);
-    setIsPitchComplete(false);
-    setPitchData({
-      researchIdea: '',
-      alignment: '',
-      methodology: '',
-      scopeTier: '',
-      impact: '',
-      resources: '',
-      timeline: '',
-      partners: ''
-    });
+      if (newPitch) {
+        // Add to my pitches
+        setMyPitches(prev => [newPitch, ...prev]);
+
+        // Reset and navigate to My Pitches
+        setViewMode('my-pitches');
+        setPitchPath('choice');
+        setSelectedGreenlitPitch(null);
+        setIsPitchComplete(false);
+        setExpandedPitch(newPitch.id);
+        setPitchData({
+          researchIdea: '',
+          alignment: '',
+          methodology: '',
+          scopeTier: '',
+          impact: '',
+          resources: '',
+          timeline: '',
+          partners: ''
+        });
+      }
+    } catch (err) {
+      console.error('Error submitting pitch:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Handler for pitch updates from the AI agent
@@ -369,57 +309,59 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
     }
   };
 
-  // Check if pitch is ready to submit (at least research idea and methodology)
-  const canSubmit = pitchData.researchIdea && pitchData.methodology;
-
   // Handler to update a submitted pitch field (for reviewers)
-  const handleUpdatePitchField = (pitchId: string, field: keyof SubmittedPitch, value: string) => {
-    setSubmittedPitches(prev => prev.map(p =>
+  const handleUpdatePitchField = async (pitchId: string, field: string, value: string) => {
+    // Update locally first for immediate feedback
+    setMyPitches(prev => prev.map(p =>
       p.id === pitchId ? { ...p, [field]: value } : p
     ));
+
+    // Then persist to database
+    const dbField = field === 'researchIdea' ? 'researchIdea' :
+                    field === 'scopeTier' ? 'scopeTier' : field;
+    await updatePitch(pitchId, { [dbField]: value });
   };
 
   // Handler to change research method (combined scope + methodology + auto timeline)
-  const handleMethodChange = (pitchId: string, combinedValue: string) => {
+  const handleMethodChange = async (pitchId: string, combinedValue: string) => {
     const methodInfo = getMethodInfo(combinedValue);
 
-    setSubmittedPitches(prev => prev.map(p => {
-      if (p.id !== pitchId) return p;
+    const updates = methodInfo
+      ? {
+          scopeTier: methodInfo.scope,
+          methodology: methodInfo.methodology,
+          timeline: formatTimeline(methodInfo.weeks as [number, number])
+        }
+      : { scopeTier: '', methodology: '', timeline: '' };
 
-      if (!methodInfo) {
-        return { ...p, scope: '', methodology: '', timeline: '' };
-      }
+    // Update locally
+    setMyPitches(prev => prev.map(p =>
+      p.id === pitchId ? { ...p, ...updates } : p
+    ));
 
-      return {
-        ...p,
-        scope: methodInfo.scope as 'simple' | 'medium' | 'complex',
-        methodology: methodInfo.methodology,
-        timeline: formatTimeline(methodInfo.weeks as [number, number])
-      };
-    }));
+    // Persist to database
+    await updatePitch(pitchId, updates);
   };
 
   // Handler to change pitch status
-  const handleStatusChange = (pitchId: string, newStatus: PitchStatus) => {
-    setSubmittedPitches(prev => prev.map(p =>
+  const handleStatusChange = async (pitchId: string, newStatus: PitchStatus) => {
+    // Update locally
+    setMyPitches(prev => prev.map(p =>
       p.id === pitchId ? { ...p, status: newStatus } : p
     ));
+
+    // Persist to database
+    await updatePitch(pitchId, { status: newStatus });
   };
 
   // Handler to add a comment to a pitch
-  const handleAddComment = (pitchId: string, isReviewer: boolean) => {
-    if (!commentInput.trim()) return;
+  const handleAddComment = async (pitchId: string) => {
+    if (!commentInput.trim() || !currentUser) return;
 
-    const newComment: ReviewComment = {
-      author: isReviewer ? 'GreenLight Team' : 'You',
-      date: new Date().toISOString().split('T')[0],
-      message: commentInput,
-      isReviewer
-    };
-
-    setSubmittedPitches(prev => prev.map(p =>
-      p.id === pitchId ? { ...p, comments: [...p.comments, newComment] } : p
-    ));
+    const newComment = await addPitchComment(pitchId, currentUser.id, commentInput);
+    if (newComment) {
+      setPitchComments(prev => [...prev, newComment]);
+    }
     setCommentInput('');
   };
 
@@ -480,41 +422,52 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
     </motion.div>
   );
 
-  // Render GreenLit topic list (left panel)
+  // Render GreenLit pitch list (left panel)
   const renderGreenLitList = () => (
     <div className="bg-card border border-card rounded-2xl h-full flex flex-col overflow-hidden">
       <div className="p-4 border-b border-gray-800 shrink-0">
-        <h2 className="text-lg font-bold text-white">GreenLit Topics</h2>
-        <p className="text-sm text-gray-500">Select a pre-approved research topic</p>
+        <h2 className="text-lg font-bold text-white">Available GreenLit Pitches</h2>
+        <p className="text-sm text-gray-500">Select a pre-approved pitch to claim</p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {GREENLIT_TOPICS.map((topic) => {
-          const isSelected = selectedGreenLitTopic?.id === topic.id;
-          return (
-            <button
-              key={topic.id}
-              onClick={() => handleSelectGreenLitTopic(topic)}
-              className={`w-full text-left p-4 rounded-xl transition-all ${
-                isSelected
-                  ? 'bg-green-900/30 border border-green-700'
-                  : 'bg-gray-800/50 border border-transparent hover:border-gray-700'
-              }`}
-            >
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className={`font-medium ${isSelected ? 'text-green-400' : 'text-white'}`}>
-                  {topic.title}
+        {availableGreenlit.length === 0 ? (
+          <p className="text-sm text-gray-500 text-center py-8">
+            No available greenlit pitches at the moment.
+          </p>
+        ) : (
+          availableGreenlit.map((pitch) => {
+            const isSelected = selectedGreenlitPitch?.id === pitch.id;
+            return (
+              <button
+                key={pitch.id}
+                onClick={() => handleSelectGreenlitPitch(pitch)}
+                className={`w-full text-left p-4 rounded-xl transition-all ${
+                  isSelected
+                    ? 'bg-green-900/30 border border-green-700'
+                    : 'bg-gray-800/50 border border-transparent hover:border-gray-700'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-mono text-gray-500">{pitch.id}</span>
+                  {pitch.scopeTier && (
+                    <>
+                      <span className="text-xs text-gray-600">-</span>
+                      <span className="text-xs text-gray-400 capitalize">{pitch.scopeTier}</span>
+                    </>
+                  )}
+                  {isSelected && (
+                    <Check className="w-4 h-4 text-green-400 ml-auto" />
+                  )}
+                </div>
+                <h3 className={`font-medium mb-1 ${isSelected ? 'text-green-400' : 'text-white'}`}>
+                  {pitch.title}
                 </h3>
-                <span className="text-xs text-gray-500">-</span>
-                <span className="text-xs text-gray-400 capitalize">{topic.suggestedScope}</span>
-                {isSelected && (
-                  <Check className="w-4 h-4 text-green-400 ml-auto" />
-                )}
-              </div>
-              <p className="text-xs text-gray-500 line-clamp-2">{topic.description}</p>
-            </button>
-          );
-        })}
+                <p className="text-xs text-gray-500 line-clamp-2">{pitch.researchIdea}</p>
+              </button>
+            );
+          })
+        )}
       </div>
     </div>
   );
@@ -722,7 +675,7 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
       );
     }
 
-    // GreenLit flow: topic list + cards
+    // GreenLit flow: pitch list + details
     return (
       <div className="flex gap-6 h-full overflow-hidden">
         {/* Left: GreenLit List */}
@@ -730,35 +683,69 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
           {renderGreenLitList()}
         </div>
 
-        {/* Right: Schedule + Pitch Card (vstack) */}
+        {/* Right: Selected pitch details + Claim button */}
         <div className="w-96 shrink-0 flex flex-col gap-4 h-full overflow-hidden">
-          <ScheduleCard proposedScope={pitchData.scopeTier as 'simple' | 'medium' | 'complex' | ''} />
+          {selectedGreenlitPitch ? (
+            <>
+              <div className="bg-card border border-card rounded-2xl p-6 flex-1 overflow-y-auto">
+                <div className="flex items-center gap-2 mb-4">
+                  <Zap className="w-5 h-5 text-green-400" />
+                  <span className="text-xs font-semibold text-green-400 uppercase tracking-wider">
+                    Pre-Approved
+                  </span>
+                </div>
 
-          <div className="flex-1 min-h-0 overflow-hidden">
-            <PitchCard
-              data={pitchData}
-              onUpdate={handleUpdateField}
-              isGreenLit={isGreenLitFlow && !!selectedGreenLitTopic}
-              greenLitTitle={selectedGreenLitTopic?.title}
-            />
-          </div>
+                <h2 className="text-xl font-bold text-white mb-2">{selectedGreenlitPitch.title}</h2>
+                <p className="text-sm text-gray-400 mb-6">{selectedGreenlitPitch.researchIdea}</p>
 
-          {/* Submit Button */}
-          <motion.button
-            whileHover={{ scale: canSubmit ? 1.02 : 1 }}
-            whileTap={{ scale: canSubmit ? 0.98 : 1 }}
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-            className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium transition-all shrink-0 ${
-              canSubmit
-                ? 'bg-white text-black hover:bg-gray-100'
-                : 'bg-gray-800 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            <Send className="w-4 h-4" />
-            Submit Pitch
-          </motion.button>
+                <div className="space-y-4">
+                  {selectedGreenlitPitch.scopeTier && (
+                    <div>
+                      <span className="text-xs font-semibold text-gray-500 uppercase">Scope</span>
+                      <p className="text-white capitalize">{selectedGreenlitPitch.scopeTier}</p>
+                    </div>
+                  )}
+                  {selectedGreenlitPitch.methodology && (
+                    <div>
+                      <span className="text-xs font-semibold text-gray-500 uppercase">Methodology</span>
+                      <p className="text-white">{selectedGreenlitPitch.methodology}</p>
+                    </div>
+                  )}
+                  {selectedGreenlitPitch.alignment && (
+                    <div>
+                      <span className="text-xs font-semibold text-gray-500 uppercase">Alignment</span>
+                      <p className="text-white capitalize">{selectedGreenlitPitch.alignment.replace('-', ' ')}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
 
+              <ScheduleCard proposedScope={selectedGreenlitPitch.scopeTier as 'simple' | 'medium' | 'complex' | ''} />
+
+              {/* Claim Button */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleClaimGreenlit}
+                disabled={isSubmitting}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium bg-green-600 text-white hover:bg-green-500 transition-all shrink-0 disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Zap className="w-4 h-4" />
+                )}
+                Claim This Pitch
+              </motion.button>
+            </>
+          ) : (
+            <div className="bg-card border border-card rounded-2xl p-6 flex-1 flex items-center justify-center">
+              <div className="text-center text-gray-500">
+                <Zap className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p>Select a pitch to view details</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -769,52 +756,60 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
     <div className="flex gap-6 h-full">
       {/* Left: Pitch List */}
       <div className="w-80 shrink-0 space-y-2 overflow-y-auto">
-        {submittedPitches.map((pitch, index) => {
-          const isSelected = expandedPitch === pitch.id;
-          const status = STATUS_CONFIG[pitch.status];
-          const StatusIcon = status.icon;
+        {myPitches.length === 0 ? (
+          <div className="text-center py-12 text-gray-500">
+            <p>No pitches yet.</p>
+            <p className="text-sm mt-1">Create a new pitch to get started.</p>
+          </div>
+        ) : (
+          myPitches.map((pitch, index) => {
+            const isSelected = expandedPitch === pitch.id;
+            const status = STATUS_CONFIG[pitch.status];
+            const StatusIcon = status.icon;
 
-          return (
-            <motion.button
-              key={pitch.id}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
-              onClick={() => setExpandedPitch(isSelected ? null : pitch.id)}
-              className={`w-full text-left p-4 rounded-xl transition-all ${
-                isSelected
-                  ? 'bg-card border-2 border-sky-500'
-                  : 'bg-card border border-card hover:border-gray-600'
-              }`}
-            >
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <span className="text-xs font-mono text-gray-500">{pitch.id}</span>
-                <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${status.bg}`}>
-                  <StatusIcon className={`w-3 h-3 ${status.color}`} />
+            return (
+              <motion.button
+                key={pitch.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+                onClick={() => setExpandedPitch(isSelected ? null : pitch.id)}
+                className={`w-full text-left p-4 rounded-xl transition-all ${
+                  isSelected
+                    ? 'bg-card border-2 border-sky-500'
+                    : 'bg-card border border-card hover:border-gray-600'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <span className="text-xs font-mono text-gray-500">{pitch.id}</span>
+                  <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${status.bg}`}>
+                    <StatusIcon className={`w-3 h-3 ${status.color}`} />
+                  </div>
                 </div>
-              </div>
-              <h3 className="text-sm font-medium text-white line-clamp-2 mb-1">{pitch.title}</h3>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <User className="w-3 h-3" />
-                <span>{pitch.submittedBy}</span>
-              </div>
-            </motion.button>
-          );
-        })}
+                <h3 className="text-sm font-medium text-white line-clamp-2 mb-1">{pitch.title}</h3>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <Calendar className="w-3 h-3" />
+                  <span>{pitch.createdAt.toLocaleDateString()}</span>
+                </div>
+              </motion.button>
+            );
+          })
+        )}
       </div>
 
       {/* Right: Review Panel */}
       <div className="flex-1 min-w-0">
         {expandedPitch ? (
           (() => {
-            const pitch = submittedPitches.find(p => p.id === expandedPitch);
+            const pitch = myPitches.find(p => p.id === expandedPitch);
             if (!pitch) return null;
             const status = STATUS_CONFIG[pitch.status];
             const StatusIcon = status.icon;
-            const methodInfo = pitch.scope && pitch.methodology
-              ? RESEARCH_METHODS.find(m => m.scope === pitch.scope && m.methodology === pitch.methodology)
+            const methodInfo = pitch.scopeTier && pitch.methodology
+              ? RESEARCH_METHODS.find(m => m.scope === pitch.scopeTier && m.methodology === pitch.methodology)
               : null;
-            const scopeLabel = pitch.scope ? SCOPE_LABELS[pitch.scope] : null;
+            const scopeLabel = pitch.scopeTier ? SCOPE_LABELS[pitch.scopeTier] : null;
+            const isMyComment = (comment: PitchComment) => comment.userId === currentUser?.id;
 
             return (
               <motion.div
@@ -836,12 +831,8 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
                       <h2 className="text-xl font-bold text-white mb-2">{pitch.title}</h2>
                       <div className="flex items-center gap-4 text-sm text-gray-400">
                         <span className="flex items-center gap-1.5">
-                          <User className="w-4 h-4" />
-                          {pitch.submittedBy}
-                        </span>
-                        <span className="flex items-center gap-1.5">
                           <Calendar className="w-4 h-4" />
-                          {pitch.submittedDate}
+                          {pitch.createdAt.toLocaleDateString()}
                         </span>
                       </div>
                     </div>
@@ -883,7 +874,7 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
                           Research Method
                         </label>
                         <select
-                          value={pitch.scope && pitch.methodology ? `${pitch.scope}|${pitch.methodology}` : ''}
+                          value={pitch.scopeTier && pitch.methodology ? `${pitch.scopeTier}|${pitch.methodology}` : ''}
                           onChange={(e) => handleMethodChange(pitch.id, e.target.value)}
                           className="w-full bg-gray-800 text-white text-sm rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:ring-1 focus:ring-sky-500"
                         >
@@ -912,7 +903,7 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
                           Project Alignment
                         </label>
                         <select
-                          value={pitch.alignment}
+                          value={pitch.alignment || ''}
                           onChange={(e) => handleUpdatePitchField(pitch.id, 'alignment', e.target.value)}
                           className="w-full bg-gray-800 text-white text-sm rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:ring-1 focus:ring-sky-500"
                         >
@@ -928,7 +919,7 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
                           Expected Impact / Deliverable
                         </label>
                         <textarea
-                          value={pitch.impact}
+                          value={pitch.impact || ''}
                           onChange={(e) => handleUpdatePitchField(pitch.id, 'impact', e.target.value)}
                           rows={2}
                           placeholder="What will this research produce?"
@@ -939,8 +930,8 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
                       {/* Method Summary Card */}
                       {methodInfo && scopeLabel && (
                         <div className={`p-4 rounded-xl border ${
-                          pitch.scope === 'simple' ? 'bg-green-900/20 border-green-800' :
-                          pitch.scope === 'medium' ? 'bg-yellow-900/20 border-yellow-800' :
+                          pitch.scopeTier === 'simple' ? 'bg-green-900/20 border-green-800' :
+                          pitch.scopeTier === 'medium' ? 'bg-yellow-900/20 border-yellow-800' :
                           'bg-red-900/20 border-red-800'
                         }`}>
                           <div className="flex items-center gap-2 mb-2">
@@ -952,8 +943,12 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
                           <p className="text-sm text-white mb-1">{methodInfo.methodology}</p>
                           <div className="flex items-center gap-4 text-xs text-gray-400">
                             <span>{methodInfo.hours[0]}-{methodInfo.hours[1]} hours</span>
-                            <span>·</span>
-                            <span>{pitch.timeline}</span>
+                            {pitch.timeline && (
+                              <>
+                                <span>-</span>
+                                <span>{pitch.timeline}</span>
+                              </>
+                            )}
                           </div>
                         </div>
                       )}
@@ -970,36 +965,39 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
 
                       {/* Comments List */}
                       <div className="flex-1 space-y-3 overflow-y-auto mb-4 max-h-64">
-                        {pitch.comments.length === 0 ? (
+                        {pitchComments.length === 0 ? (
                           <p className="text-sm text-gray-500 italic py-4 text-center">
                             No comments yet. Add feedback below.
                           </p>
                         ) : (
-                          pitch.comments.map((comment, i) => (
-                            <div key={i} className={`flex gap-3 ${!comment.isReviewer ? 'flex-row-reverse' : ''}`}>
-                              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                                comment.isReviewer ? 'bg-green-900/50' : 'bg-gray-700'
-                              }`}>
-                                {comment.isReviewer ? (
-                                  <Zap className="w-4 h-4 text-green-400" />
-                                ) : (
-                                  <User className="w-4 h-4 text-white" />
-                                )}
-                              </div>
-                              <div className={`flex-1 ${!comment.isReviewer ? 'text-right' : ''}`}>
-                                <div className={`inline-block rounded-xl p-3 max-w-[90%] ${
-                                  comment.isReviewer ? 'bg-gray-800' : 'bg-white'
+                          pitchComments.map((comment) => {
+                            const isMine = isMyComment(comment);
+                            return (
+                              <div key={comment.id} className={`flex gap-3 ${isMine ? 'flex-row-reverse' : ''}`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                                  isMine ? 'bg-gray-700' : 'bg-green-900/50'
                                 }`}>
-                                  <p className={`text-sm ${comment.isReviewer ? 'text-gray-300' : 'text-black'}`}>
-                                    {comment.message}
+                                  {isMine ? (
+                                    <User className="w-4 h-4 text-white" />
+                                  ) : (
+                                    <Zap className="w-4 h-4 text-green-400" />
+                                  )}
+                                </div>
+                                <div className={`flex-1 ${isMine ? 'text-right' : ''}`}>
+                                  <div className={`inline-block rounded-xl p-3 max-w-[90%] ${
+                                    isMine ? 'bg-white' : 'bg-gray-800'
+                                  }`}>
+                                    <p className={`text-sm ${isMine ? 'text-black' : 'text-gray-300'}`}>
+                                      {comment.message}
+                                    </p>
+                                  </div>
+                                  <p className="text-xs text-gray-600 mt-1">
+                                    {comment.user?.name || 'Unknown'} - {comment.createdAt.toLocaleDateString()}
                                   </p>
                                 </div>
-                                <p className="text-xs text-gray-600 mt-1">
-                                  {comment.author} · {comment.date}
-                                </p>
                               </div>
-                            </div>
-                          ))
+                            );
+                          })
                         )}
                       </div>
 
@@ -1014,7 +1012,7 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
                             className="flex-1 bg-gray-800 text-white text-sm rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:ring-1 focus:ring-sky-500 resize-none"
                           />
                           <button
-                            onClick={() => handleAddComment(pitch.id, false)}
+                            onClick={() => handleAddComment(pitch.id)}
                             disabled={!commentInput.trim()}
                             className="px-4 py-2 rounded-lg text-sm font-medium bg-white text-black hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
@@ -1042,6 +1040,14 @@ const PitchSubmission: React.FC<PitchSubmissionProps> = ({ initialViewMode = 'ne
 
   // Determine what content to render
   const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="h-full flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-gray-500 animate-spin" />
+        </div>
+      );
+    }
+
     if (viewMode === 'my-pitches') {
       return renderMyPitches();
     }

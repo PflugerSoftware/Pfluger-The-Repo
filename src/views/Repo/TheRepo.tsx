@@ -97,6 +97,7 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
   const createNewSession = (firstMessage: string): string => {
     const newSession: ChatSession = {
       id: Date.now().toString(),
+      userId: '00000000-0000-0000-0000-000000000001', // TODO: Get from auth context
       title: firstMessage.slice(0, 40) + (firstMessage.length > 40 ? '...' : ''),
       messages: [],
       createdAt: new Date(),
@@ -106,8 +107,8 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
     setChatSessions(prev => [newSession, ...prev]);
     setActiveSessionId(newSession.id);
     // Persist to Supabase (if authenticated)
-    if (isAuthenticated && user?.username) {
-      createChatSession(user.username, newSession);
+    if (isAuthenticated) {
+      createChatSession('00000000-0000-0000-0000-000000000001', newSession);
     }
     return newSession.id;
   };
