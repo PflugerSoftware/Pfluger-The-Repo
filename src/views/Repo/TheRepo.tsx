@@ -14,9 +14,11 @@ import {
   type ChatMessage
 } from '../../services/chatHistory';
 import { getUserByEmail } from '../../services/pitchService';
+import { MessageContent } from '../../components/MessageContent';
 
 interface TheRepoProps {
   onNavigate: (view: string) => void;
+  onOpenProject?: (projectId: string) => void;
 }
 
 const QUICK_PROMPTS = [
@@ -26,7 +28,7 @@ const QUICK_PROMPTS = [
   { icon: TrendingUp, label: 'Recent work', prompt: 'What are the most recent completed projects?' },
 ];
 
-const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
+const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate, onOpenProject }) => {
   const { projects } = useProjects();
   const { user, isAuthenticated } = useAuth();
   const [inputValue, setInputValue] = useState('');
@@ -398,9 +400,11 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
                               : 'bg-card border border-card rounded-tl-sm'
                           }`}
                         >
-                          <p className={`text-sm whitespace-pre-wrap ${msg.role === 'user' ? 'text-black' : 'text-gray-300'}`}>
-                            {msg.content}
-                          </p>
+                          <MessageContent
+                            content={msg.content}
+                            onProjectClick={onOpenProject}
+                            className={msg.role === 'user' ? 'text-black' : 'text-gray-300'}
+                          />
                         </div>
                         {/* Sources */}
                         {msg.sources && msg.sources.length > 0 && (
@@ -417,7 +421,12 @@ const TheRepo: React.FC<TheRepoProps> = ({ onNavigate: _onNavigate }) => {
                             {msg.sources.map((source, index) => (
                               <div key={source.id} className="text-xs text-gray-500 mb-1">
                                 <span className="text-gray-400 font-medium">[{index + 1}]</span>{' '}
-                                <span className="text-gray-600">{source.project_id}</span>{' '}
+                                <button
+                                  onClick={() => onOpenProject?.(source.project_id)}
+                                  className="text-blue-400 hover:text-blue-300 underline cursor-pointer transition-colors"
+                                >
+                                  {source.project_id}
+                                </button>{' '}
                                 {source.url ? (
                                   <a
                                     href={source.url}

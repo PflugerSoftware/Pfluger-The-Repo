@@ -1,48 +1,23 @@
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogIn, LogOut } from 'lucide-react';
 import { useAuth } from '../System/AuthContext';
 
-export type ViewType =
-  | 'home'
-  | 'login'
-  | 'dashboard'
-  | 'the-repo'
-  | 'schedule'
-  | 'contacts'
-  | 'map'
-  | 'pitch'
-  | 'pitch-list'
-  | 'pitch-new'
-  | 'portfolio'
-  | 'analytics'
-  | 'collaborate'
-  | 'about'
-  | 'about-rb'
-  | 'about-process'
-  | 'about-ai'
-  | 'about-tools'
-  | 'about-sources'
-  | 'project-rb02'
-  | 'project-rb02-blocks'
-  | 'project-rb05'
-  | 'project-rb08';
-
 interface SubItem {
   label: string;
-  view?: ViewType;
+  path?: string;
   href?: string;
 }
 
 interface NavSection {
   id: string;
   label: string;
-  view: ViewType;
+  path: string;
   subItems: (string | SubItem)[];
 }
 
 interface TopNavbarProps {
-  onNavigate: (view: ViewType) => void;
   onLogoClick: () => void;
 }
 
@@ -85,43 +60,43 @@ const NAV_SECTIONS: NavSection[] = [
   {
     id: 'campus',
     label: 'campus',
-    view: 'map',
-    subItems: ['austin', 'san antonio', 'dallas', 'houston', 'corpus christi']
+    path: '/campus',
+    subItems: ['Austin', 'San Antonio', 'Dallas', 'Houston', 'Corpus Christi']
   },
   {
     id: 'explore',
     label: 'explore',
-    view: 'portfolio',
+    path: '/explore',
     subItems: [] // Special handling for this section
   },
   {
     id: 'pitch',
     label: 'pitch',
-    view: 'pitch',
+    path: '/pitch',
     subItems: [
-      { label: "Let's Pitch!", view: 'pitch-new' },
-      { label: 'My Pitches', view: 'pitch-list' }
+      { label: "Let's Pitch!", path: '/pitch' },
+      { label: 'My Pitches', path: '/pitch/mypitches' }
     ]
   },
   {
-    id: 'connect',
-    label: 'connect',
-    view: 'collaborate',
+    id: 'contact',
+    label: 'contact',
+    path: '/contact',
     subItems: [
-      { label: 'research', view: 'collaborate' },
+      { label: 'research', path: '/contact' },
       { label: 'work', href: 'https://pflugerarchitects.com' }
     ]
   },
   {
     id: 'about',
     label: 'about',
-    view: 'about',
+    path: '/about',
     subItems: [
-      { label: 'Research & Benchmarking', view: 'about-rb' },
-      { label: 'Our Process', view: 'about-process' },
-      { label: 'Our Tools', view: 'about-tools' },
-      { label: 'Use of AI', view: 'about-ai' },
-      { label: 'Sources & Citations', view: 'about-sources' }
+      { label: 'Research & Benchmarking', path: '/about/research&benchmarking' },
+      { label: 'Our Process', path: '/about/process' },
+      { label: 'Our Tools', path: '/about/tools' },
+      { label: 'Use of AI', path: '/about/ai' },
+      { label: 'Sources & Citations', path: '/about/sources' }
     ]
   }
 ];
@@ -129,17 +104,17 @@ const NAV_SECTIONS: NavSection[] = [
 const REPO_SECTION: NavSection = {
   id: 'the-repo',
   label: 'repository',
-  view: 'the-repo',
+  path: '/repository',
   subItems: [
-    { label: 'Repository', view: 'the-repo' },
-    'My Research',
-    { label: 'Schedule', view: 'schedule' },
-    { label: 'Contacts', view: 'contacts' }
+    { label: 'Repository', path: '/repository' },
+    { label: 'Schedule', path: '/repository/schedule' },
+    { label: 'Contacts', path: '/repository/contacts' }
   ]
 };
 
-export function TopNavbar({ onNavigate, onLogoClick }: TopNavbarProps) {
+export function TopNavbar({ onLogoClick }: TopNavbarProps) {
   const { logout, isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   // Generate initials from user name
@@ -155,7 +130,7 @@ export function TopNavbar({ onNavigate, onLogoClick }: TopNavbarProps) {
     if (isAuthenticated) {
       logout();
     } else {
-      onNavigate('login');
+      navigate('/login');
     }
   };
 
@@ -165,6 +140,11 @@ export function TopNavbar({ onNavigate, onLogoClick }: TopNavbarProps) {
 
   const isExpanded = hoveredId !== null;
   const activeSection = visibleSections.find(s => s.id === hoveredId);
+
+  // Close menu when clicking a link
+  const handleLinkClick = () => {
+    setHoveredId(null);
+  };
 
   return (
     <>
@@ -218,16 +198,17 @@ export function TopNavbar({ onNavigate, onLogoClick }: TopNavbarProps) {
           {/* Nav items - centered */}
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-8">
             {visibleSections.map((section) => (
-              <button
+              <Link
                 key={section.id}
-                onClick={() => onNavigate(section.view)}
+                to={section.path}
                 onMouseEnter={() => setHoveredId(section.id)}
+                onClick={handleLinkClick}
                 className={`text-sm transition-colors py-2 ${
                   hoveredId === section.id ? 'text-white' : 'text-gray-400 hover:text-white'
                 }`}
               >
                 {section.label}
-              </button>
+              </Link>
             ))}
           </div>
 
@@ -282,16 +263,20 @@ export function TopNavbar({ onNavigate, onLogoClick }: TopNavbarProps) {
                       <p className="text-xs text-gray-500 mb-4 tracking-wide">explore</p>
                       <div className="flex flex-col gap-1">
                         {EXPLORE_ITEMS.map((item, i) => (
-                          <motion.button
+                          <motion.div
                             key={item}
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: i * 0.03 }}
-                            onClick={() => onNavigate('portfolio')}
-                            className="text-2xl font-bold text-white hover:text-gray-300 transition-colors text-left py-1"
                           >
-                            {item}
-                          </motion.button>
+                            <Link
+                              to="/explore"
+                              onClick={handleLinkClick}
+                              className="text-2xl font-bold text-white hover:text-gray-300 transition-colors text-left py-1 block"
+                            >
+                              {item}
+                            </Link>
+                          </motion.div>
                         ))}
                       </div>
                     </div>
@@ -310,15 +295,16 @@ export function TopNavbar({ onNavigate, onLogoClick }: TopNavbarProps) {
                             <p className="text-sm text-gray-400 mb-1">{yearGroup.year}</p>
                             <div className="space-y-0.5 pl-3 border-l border-gray-700">
                               {yearGroup.projects.map((project) => (
-                                <button
+                                <Link
                                   key={project.id}
-                                  onClick={() => onNavigate('portfolio')}
+                                  to={`/explore/${project.id}`}
+                                  onClick={handleLinkClick}
                                   className="block text-sm text-gray-400 hover:text-white transition-colors py-0.5"
                                 >
                                   <span className="text-gray-600">{project.id}</span>
                                   <span className="mx-2">-</span>
                                   <span>{project.title}</span>
-                                </button>
+                                </Link>
                               ))}
                             </div>
                           </motion.div>
@@ -338,7 +324,7 @@ export function TopNavbar({ onNavigate, onLogoClick }: TopNavbarProps) {
                       {activeSection.subItems.map((item, i) => {
                         const isSubItem = typeof item === 'object';
                         const label = isSubItem ? item.label : item;
-                        const targetView = isSubItem && item.view ? item.view : activeSection.view;
+                        const targetPath = isSubItem && item.path ? item.path : activeSection.path;
                         const href = isSubItem ? item.href : undefined;
 
                         if (href) {
@@ -359,16 +345,20 @@ export function TopNavbar({ onNavigate, onLogoClick }: TopNavbarProps) {
                         }
 
                         return (
-                          <motion.button
+                          <motion.div
                             key={label}
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: i * 0.03 }}
-                            onClick={() => onNavigate(targetView)}
-                            className="text-2xl font-bold text-white hover:text-gray-300 transition-colors text-left py-1"
                           >
-                            {label}
-                          </motion.button>
+                            <Link
+                              to={targetPath}
+                              onClick={handleLinkClick}
+                              className="text-2xl font-bold text-white hover:text-gray-300 transition-colors text-left py-1 block"
+                            >
+                              {label}
+                            </Link>
+                          </motion.div>
                         );
                       })}
                     </div>

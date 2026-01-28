@@ -371,7 +371,8 @@ VOICE:
 
 STRUCTURE (flexible, not rigid):
 - Share one compelling insight from the research (cite using the source ID like [12], [13])
-- Mention the project naturally (${projectIds.join(', ')})
+- Reference projects by their ID when mentioning them (e.g., "X25-RB01 explores..." or "In project X26-RB02...")
+- Available projects: ${projectIds.join(', ')}
 - Connect to what they've shared about their project/interests
 - Keep it conversational - 2-4 sentences total
 

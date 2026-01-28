@@ -226,58 +226,58 @@ Connection: `postgresql://postgres.bydkzxqmgsvsnjtafphj:[PASSWORD]@aws-1-us-east
 ### Full Workflow: Pitch → Research → Live
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                           PITCH PHASE                               │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
+┌────────────────────────────────────────────────────────────────────┐
+│                           PITCH PHASE                              │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
 │  ┌─────────┐      ┌─────────┐      ┌────────┐                      │
 │  │  DRAFT  │ ──▶  │ PENDING │ ──▶  │GREENLIT│ ─────────────────┐   │
 │  └─────────┘      └────┬────┘      └────────┘                  │   │
-│                        │                                        │   │
-│                        ▼                                        │   │
-│                   ┌─────────┐      ┌──────────┐                 │   │
-│                   │ REVISE  │      │ REJECTED │                 │   │
-│                   └────┬────┘      └──────────┘                 │   │
-│                        │ resubmit                               │   │
-│                        ▼                                        │   │
-│                   ┌─────────┐                                   │   │
-│                   │ PENDING │                                   │   │
-│                   └─────────┘                                   │   │
-└─────────────────────────────────────────────────────────────────┼───┘
-                                                                  │
-                    Agent creates Research Object + X26-RBxx      │
-                                                                  ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                         RESEARCH PHASE                              │
-│                      (appears on "My Research")                     │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
+│                        │                                       │   │
+│                        ▼                                       │   │
+│                   ┌─────────┐      ┌──────────┐                │   │
+│                   │ REVISE  │      │ REJECTED │                │   │
+│                   └────┬────┘      └──────────┘                │   │
+│                        │ resubmit                              │   │
+│                        ▼                                       │   │
+│                   ┌─────────┐                                  │   │
+│                   │ PENDING │                                  │   │
+│                   └─────────┘                                  │   │
+└────────────────────────────────────────────────────────────────┼───┘
+                                                                 │
+                    Agent creates Research Object + X26-RBxx     │
+                                                                 ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                         RESEARCH PHASE                             │
+│                      (appears on "My Research")                    │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
 │  ┌─────────┐      ┌───────────┐      ┌────────┐      ┌──────────┐  │
 │  │  DRAFT  │ ──▶  │IN PROGRESS│ ──▶  │ REVIEW │ ──▶  │ APPROVED │  │
 │  └─────────┘      └───────────┘      └────┬───┘      └─────┬────┘  │
-│       │                                   │                 │       │
-│       │          User works with agent:   │                 │       │
-│       │          • Upload metrics         │ revisions       │       │
-│       │          • Add images             ▼                 │       │
-│       │          • Build research.ts  ┌───────────┐         │       │
-│       │          • Comments/chat      │IN PROGRESS│         │       │
-│       │                               └───────────┘         │       │
-│       │                                                     │       │
-│       └── Agent scaffolds working document                  │       │
-│                                                             │       │
-└─────────────────────────────────────────────────────────────┼───────┘
-                                                              │
-                                                              ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                           LIVE PHASE                                │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  Research Object becomes researchConfig.ts                          │
-│  • Appears on Portfolio (Work)                                      │
-│  • Appears on Repository                                               │
-│  • Has project dashboard with blocks                                │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+│       │                                   │                │       │
+│       │          User works with agent:   │                │       │
+│       │          • Upload metrics         │ revisions      │       │
+│       │          • Add images             ▼                │       │
+│       │          • Build research.ts  ┌───────────┐        │       │
+│       │          • Comments/chat      │IN PROGRESS│        │       │
+│       │                               └───────────┘        │       │
+│       │                                                    │       │
+│       └── Agent scaffolds working document                 │       │
+│                                                            │       │
+└────────────────────────────────────────────────────────────┼───────┘
+                                                             │
+                                                             ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                           LIVE PHASE                               │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│  Research Object becomes researchConfig.ts                         │
+│  • Appears on Portfolio (Work)                                     │
+│  • Appears on Repository                                           │
+│  • Has project dashboard with blocks                               │
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Projects Table (replaces research_objects concept)
@@ -422,6 +422,148 @@ When pitch is GreenLit:
 - [ ] Analytics verification
 - [ ] Bug fixes from testing
 
+### Pre-Launch Feedback
+
+- LS: It would be better if the chat assistant included hyperlinks when referencing articles. Whether internal or external, so users can navigate directly to the source.
+- BH: Would also be nice to have hyperlinks for the precedent studies that are cited for projects in the research campus.
+- BH: Love the idea of having green-lit / pre-approved research prompts! This might make it less intimidating for more people to start researching/writing
+
+### Prelaunch Analytics
+
+**Summary:** 4 active users out of 9 total testers | 27 total page views | 4 sessions | 28 minutes total time
+
+---
+
+#### Braden Haley (braden.haley@pflugerarchitects.com)
+
+**Summary:**
+- Total Page Views: 6
+- Sessions: 1
+- Total Time Spent: 13m
+- Average Session Duration: 13m
+- Office: San Antonio
+- Role: researcher
+
+**Most Visited Pages:**
+- home: 1 visit
+- map: 1 visit
+- portfolio: 1 visit
+- the-repo: 1 visit
+- pitch-new: 1 visit
+
+**Travel History:**
+
+Session 1:
+  1. home (6:28:07 PM) →
+  2. map (6:28:14 PM) →
+  3. portfolio (6:34:37 PM) →
+  4. the-repo (6:35:26 PM) →
+  5. pitch-new (6:38:22 PM) →
+  6. collaborate (6:40:27 PM)
+
+---
+
+#### Agustin Salinas (agustin.salinas@pflugerarchitects.com)
+
+**Summary:**
+- Total Page Views: 10
+- Sessions: 1
+- Total Time Spent: 11m
+- Average Session Duration: 11m
+- Office: San Antonio
+- Role: researcher
+
+**Most Visited Pages:**
+- home: 3 visits
+- portfolio: 1 visit
+- the-repo: 1 visit
+- schedule: 1 visit
+- contacts: 1 visit
+
+**Travel History:**
+
+Session 1:
+  1. home (8:56:24 AM) →
+  2. portfolio (8:57:41 AM) →
+  3. the-repo (9:01:35 AM) →
+  4. schedule (9:02:32 AM) →
+  5. contacts (9:02:40 AM) →
+  6. collaborate (9:03:07 AM) →
+  7. pitch-new (9:03:15 AM) →
+  8. home (9:05:30 AM) →
+  9. about (9:05:44 AM) →
+  10. home (9:06:29 AM)
+
+---
+
+#### Dev User (software@pflugerarchitects.com)
+
+**Summary:**
+- Total Page Views: 5
+- Sessions: 1
+- Total Time Spent: 3m
+- Average Session Duration: 3m
+- Office: Austin
+- Role: admin
+
+**Most Visited Pages:**
+- pitch: 2 visits
+- the-repo: 2 visits
+- home: 1 visit
+
+**Travel History:**
+
+Session 1:
+  1. home (3:51:15 PM) →
+  2. pitch (3:51:20 PM) →
+  3. the-repo (3:53:15 PM) →
+  4. pitch (3:53:26 PM) →
+  5. the-repo (3:53:27 PM)
+
+---
+
+#### Logan Steitle (logan.steitle@pflugerarchitects.com)
+
+**Summary:**
+- Total Page Views: 6
+- Sessions: 1
+- Total Time Spent: 1m
+- Average Session Duration: 1m
+- Office: Austin
+- Role: researcher
+
+**Most Visited Pages:**
+- map: 2 visits
+- home: 1 visit
+- collaborate: 1 visit
+- pitch: 1 visit
+- portfolio: 1 visit
+
+**Travel History:**
+
+Session 1:
+  1. home (3:31:44 PM) →
+  2. collaborate (3:31:48 PM) →
+  3. pitch (3:31:49 PM) →
+  4. map (3:31:51 PM) →
+  5. portfolio (3:31:51 PM) →
+  6. map (3:31:53 PM)
+
+---
+
+**Users with no activity yet:**
+- Katherine Wiley (katherine.wiley@pflugerarchitects.com)
+- Leah VanderSanden (leah.vandersanden@pflugerarchitects.com)
+- Monse Rios (monse.rios@pflugerarchitects.com)
+- Nilen Varade (nilen.varade@pflugerarchitects.com)
+- Pfluger Researcher (user@pflugerarchitects.com)
+
+---
+
+_Last updated: January 28, 2026 | Run `node scripts/fetchAnalytics.mjs` to refresh analytics_
+
+
+
 ### Deferred to Post-Launch
 | Task | Status |
 |------|--------|
@@ -449,18 +591,6 @@ When pitch is GreenLit:
 1. **Public-only launch** - No internal features, just showcase
 2. **Phased launch** - Public first, internal features in February
 3. **Demo mode** - Full UI with mock data, real backend in Q2
-
----
-
-## Key Meetings This Month
-
-| Date | Time | Meeting | Attendees | Status |
-|------|------|---------|-----------|--------|
-| Wed 1/8 | 1-2pm | Software & Infrastructure | CO, CM, LP, LF | Done - Supabase approved |
-| Thu 1/9 | 11am-noon | R&B Launch Planning | CO | Done |
-| Thu 1/9 | 3-4pm | Vision BD+I Dashboard | CC, DY, CO | Done |
-| TBD | TBD | Project Prism | Terry, Tavo, AW | Pending |
-| TBD | TBD | Turf Melting | CO, TS | Pending |
 
 ---
 
