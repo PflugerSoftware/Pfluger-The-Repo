@@ -2,11 +2,93 @@
 
 **Repository** is Pfluger Architects' Research & Benchmarking platform. It serves as both a public showcase of research work and an internal management tool for the R&B team.
 
-## Handoff Notes (Jan 20, 2026)
+## Handoff Notes (Jan 28, 2026)
 
-**Latest Deploy:** https://pfluger-the-repo-67g.pages.dev
+**Latest Deploy:** https://repository.pflugerarchitects.com
 
 **What we built today:**
+
+### React Router Implementation
+
+**Full URL Routing:**
+- Migrated from state-based navigation to React Router
+- Every page now has its own shareable URL
+- Browser back/forward buttons work properly
+- Deep linking supported (can link directly to projects)
+
+**URL Structure:**
+```
+Public Routes:
+/                              → Home
+/campus                        → Research Campus Map
+/explore                       → Portfolio Gallery
+/explore/:projectId            → Project Dashboard (e.g., /explore/X25-RB01)
+/contact                       → Contact Form
+/about                         → About R&B
+/about/research&benchmarking   → R&B Overview
+/about/process                 → Research Process
+/about/tools                   → Tools & Methods
+/about/ai                      → AI Usage
+/about/sources                 → Citations
+
+Internal Routes (Login Required):
+/repository                    → AI Chat (Ezra)
+/repository/contacts           → Contacts Database
+/repository/schedule           → Project Timeline
+/pitch                         → Pitch Submission
+/pitch/mypitches              → My Pitches
+
+Auth:
+/login                         → Login Page
+```
+
+**Features Added:**
+- Protected routes redirect to /login when not authenticated
+- Analytics tracking by URL path
+- Cloudflare Pages `_redirects` configuration for SPA routing
+- Menu collapses automatically when clicking links
+
+### Clickable Project Links in Repository Chat
+
+**Hyperlink System:**
+- Project IDs (X25-RB01, etc.) are now clickable in chat messages
+- Clicking a project ID opens the project dashboard overlay
+- URLs in messages and sources are automatically linkified
+- Updated RAG prompt to encourage project ID references
+
+### Prelaunch Analytics
+
+**Analytics Dashboard:**
+- Created `scripts/fetchAnalytics.mjs` to pull user analytics from Supabase
+- Tracks page views, time spent, session duration, and travel history
+- 4 active users out of 9 total testers during beta
+- Analytics organized by person with detailed session paths
+
+### Navigation Updates
+
+**Label Changes:**
+- "Connect" → "Contact"
+- Capitalized city names in Campus menu (Austin, San Antonio, etc.)
+- Removed "My Research" placeholder (post-launch feature)
+
+### Researcher Name Updates
+
+All project researcher names updated to reflect actual team members in `src/services/projects.ts`.
+
+### Codebase Cleanup
+
+**Legacy Files Removed:**
+- Static project config files (X24RB01-immersive, X25RB01-sanctuary, etc.)
+- Phase 1 dashboard components and data files
+- All projects now load dynamically from Supabase
+
+**Kept:**
+- `X00-block-showcase` - Demo project for showcasing block types
+- `research_projects.csv` - Still used for Campus map view
+
+---
+
+## Previous Handoff Notes (Jan 20, 2026)
 
 ### Pitch System - Full Database Integration
 
@@ -114,14 +196,22 @@ The platform serves two audiences:
 
 ### Navigation
 
-The app uses a centered top navigation bar with expandable mega-menu dropdowns:
+The app uses React Router for proper URL routing with a centered top navigation bar and expandable mega-menu dropdowns:
 
-- **Campus** - Interactive map of research projects by office location
-- **Explore** - Portfolio of research work organized by year
-- **Dashboard** (internal) - Project management, schedule, contacts
-- **Pitch** (internal) - Submit and manage research proposals
-- **Connect** - Contact form for partnership inquiries
-- **About** - Information about the R&B department
+- **Campus** (`/campus`) - Interactive map of research projects by office location
+- **Explore** (`/explore`) - Portfolio of research work organized by year
+- **Repository** (`/repository`) (internal) - AI chat interface for exploring research
+  - Contacts (`/repository/contacts`)
+  - Schedule (`/repository/schedule`)
+- **Pitch** (`/pitch`) (internal) - Submit and manage research proposals
+  - My Pitches (`/pitch/mypitches`)
+- **Contact** (`/contact`) - Contact form for partnership inquiries
+- **About** (`/about`) - Information about the R&B department
+  - Research & Benchmarking
+  - Process
+  - Tools
+  - AI Usage
+  - Sources
 
 ### About Section
 
@@ -421,12 +511,15 @@ npm run build
 ### Deploy to Cloudflare Pages
 
 ```bash
-npm run build && wrangler pages deploy dist --project-name=pfluger-the-repo
+npm run build
+wrangler pages deploy dist --project-name=pfluger-the-repo
 ```
 
 **URLs:**
-- Production: `https://pfluger-the-repo-67g.pages.dev`
-- Custom domain: `https://repository.pflugerarchitects.com` (pending DNS)
+- Production: `https://repository.pflugerarchitects.com`
+- Preview: `https://pfluger-the-repo-67g.pages.dev`
+
+**Note:** The `public/_redirects` file ensures all routes redirect to `index.html` for React Router client-side routing.
 
 ## Authentication
 
@@ -469,7 +562,9 @@ INSERT INTO users (id, email, name, role, office) VALUES
 src/
 ├── components/
 │   ├── Navigation/
-│   │   └── TopNavbar.tsx           # Main navigation bar
+│   │   └── TopNavbar.tsx           # Main navigation bar with React Router Links
+│   ├── Router/
+│   │   └── ProtectedRoute.tsx      # Auth guard for internal routes
 │   ├── System/
 │   │   ├── ThemeManager.tsx        # Theme colors & utilities
 │   │   └── AuthContext.tsx         # Authentication state
@@ -477,21 +572,27 @@ src/
 │   │   ├── BlockRenderer.tsx       # Renders blocks by type
 │   │   ├── types.ts                # Block type definitions
 │   │   └── *Block.tsx              # Individual block components
+│   ├── MessageContent.tsx          # Linkifies project IDs and URLs in chat
 │   └── ui/                         # Radix UI components
 ├── views/
 │   ├── Home.tsx                    # Landing page with carousel
+│   ├── Login.tsx                   # Login page
 │   ├── Campus/ResearchMap.tsx      # Interactive map
 │   ├── Explore/Portfolio.tsx       # Research gallery by year
-│   ├── Connect/Collaborate.tsx     # Contact page
+│   ├── Contact/Collaborate.tsx     # Contact page
 │   ├── Repo/                       # Internal dashboard views
+│   │   ├── TheRepo.tsx             # AI chat interface
+│   │   ├── Contacts.tsx            # Partner database
+│   │   └── Schedule.tsx            # Timeline
+│   ├── Pitch/PitchSubmission.tsx   # Pitch management
 │   ├── About/                      # About section views
 │   └── projects/
 │       ├── ProjectDashboard.tsx        # Project detail overlay
 │       └── DynamicProjectDashboard.tsx # Database-driven project loader
 ├── data/
-│   ├── loadProjects.ts             # CSV data loader (legacy)
+│   ├── loadProjects.ts             # CSV data loader (for map view)
 │   └── projects/
-│       └── X00-block-showcase/     # Block demo project (only static config)
+│       └── X00-block-showcase/     # Block demo project (only remaining static config)
 ├── config/
 │   ├── supabase.ts                 # Supabase client
 │   └── storage.ts                  # Supabase Storage URL helper
@@ -500,16 +601,21 @@ src/
 │   ├── pitchAgent.ts               # AI pitch assistant (Ezra)
 │   ├── pitchService.ts             # Pitch CRUD operations
 │   ├── chatHistory.ts              # Chat session persistence (repo_ai_sessions)
-│   └── projects.ts                 # Project config fetcher (database)
+│   ├── projects.ts                 # Project metadata (all projects now load from Supabase)
+│   └── analytics.ts                # Page view tracking
 ├── context/
 │   └── ProjectsContext.tsx         # Global project state
+├── scripts/
+│   ├── fetchAnalytics.mjs          # Pull user analytics from Supabase
+│   └── updateResearchers.mjs       # Update project researcher names
 supabase/
 └── functions/
     ├── claude/index.ts             # Claude API proxy
     └── web-search/index.ts         # Web search fallback
 public/
+├── _redirects                      # Cloudflare Pages SPA routing config
 └── data/
-    └── research_projects.csv       # Research project data
+    └── research_projects.csv       # Research project data (for map view)
 ```
 
 ## Block System
@@ -572,18 +678,23 @@ View all blocks in action: Open the X00-DEMO project from the Portfolio page.
 
 ### 2024
 - **X24-RB01** - Immersive Learning (GPISD immersive technology research)
+  - Researchers: Alexander Wickes, Brenda Swirczynski
 
 ### 2025
 - **X25-RB01** - Sanctuary Spaces (Psychology of sanctuary spaces in schools)
+  - Researchers: Katherine Wiley, Braden Haley, Alex Wickes, Brenda Swirczynski
 - **X25-RB02** - Modulizer Part 2 (Flour Bluff CTE design iterations)
+  - Researchers: Agustin Salinas, Alex Wickes, Leah VanderSanden
 - **X25-RB03** - A4LE Design Awards (Design award submissions)
+  - Researchers: Katherine Wiley, Brenda Swirczynski
 - **X25-RB05** - Mass Timber (Psychological effects of timber in buildings)
+  - Researchers: Nilen Varade, Alex Wickes
 - **X25-RB06** - Timberlyne Study (Mass timber design assist)
+  - Researcher: Alex Wickes
 - **X25-RB08** - Modulizer Part 1 (Energy and massing strategies)
+  - Researchers: Agustin Salinas, Alex Wickes, Leah VanderSanden
 - **X25-RB13** - Modulizer Part 3 (Design concept survey analysis)
-
-### 2026
-- **X26-RB03** - Gyp Concrete (Material usage and life cycle impacts)
+  - Researchers: Agustin Salinas, Alex Wickes, Leah VanderSanden
 
 ## Data Management
 

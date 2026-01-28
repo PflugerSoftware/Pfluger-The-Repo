@@ -41,12 +41,6 @@ const WORK_BY_YEAR = [
       { id: 'X25-RB13', title: 'Modulizer Part 3' }
     ]
   },
-  {
-    year: '2026',
-    projects: [
-      { id: 'X26-RB03', title: 'Gyp Concrete' }
-    ]
-  }
 ];
 
 const EXPLORE_ITEMS = [
