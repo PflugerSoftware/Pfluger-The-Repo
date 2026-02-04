@@ -44,7 +44,7 @@ This document lists decisions that need to be made by stakeholders to move forwa
 | Supabase | Modern, Postgres, real-time | New vendor approval | | Free tier / ~$25 | Username/account |
 | OpenAsset | Already have DAM | Not a database platform || Included in license | Username/account |
 | Local Egnyte drive | No approval needed | No web access, single point of failure Claude MCP, $11,154/year |
-| Azure SSO sign in | will cord with Crag on sign in
+| Azure SSO sign in | [*] 2/4 sent requirements doc to Crag, awaiting timeline estimate
 
 ### APIs & Services
 
@@ -89,7 +89,7 @@ This document lists decisions that need to be made by stakeholders to move forwa
 ## Application Action Items
 
 ### Vision
-- SSO sign in
+- [*] SSO sign in - 2/4 sent requirements doc to Crag, awaiting estimate
 - CC meeting
 
 ### Prism
@@ -101,7 +101,7 @@ This document lists decisions that need to be made by stakeholders to move forwa
 - My Research page
 - AI RAG
 - Check block system and research .ts for accuracy
-- SSO sign in
+- [*] SSO sign in - 2/4 sent requirements doc to Crag, awaiting estimate
 
 ### Phoenix
 - Check how Phoenix is interfacing with the space library table - not loading
