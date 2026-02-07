@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**EZRA** (Educational Zeal for Research Architecture) is a dual-mode research platform for Pfluger Architects' Research & Benchmarking department. It serves as both a public showcase of research work and an internal management tool for the R&B team.
+**The Repository** is a dual-mode research platform for Pfluger Architects' Research & Benchmarking department. It serves as both a public showcase of research work and an internal management tool for the R&B team. The AI pitch assistant is named "Ezra".
 
 **Technology Stack:**
 - React 18 with TypeScript
@@ -33,7 +33,7 @@ npm run build
 
 ### Dual-Mode System
 
-EZRA operates in two modes controlled by authentication state:
+The Repository operates in two modes controlled by authentication state:
 
 **Public Mode (Default - No Login Required):**
 - Research Campus (Map) - Interactive map of all projects
@@ -355,4 +355,4 @@ Currently no automated tests. Manual testing checklist:
 
 ## Contact
 
-For questions about EZRA development, contact the Pfluger Architects Research & Benchmarking team.
+For questions about The Repository development, contact the Pfluger Architects Research & Benchmarking team.
